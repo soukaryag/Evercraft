@@ -14,6 +14,7 @@ public class MovesUsingKeys : MonoBehaviour
     //    }
     //}
 
+    [SerializeField]
     public Vector2 moveSpeed = new Vector2(0.12f, 0.12f);
     public Rigidbody2D rb;
     Vector2 movement;
