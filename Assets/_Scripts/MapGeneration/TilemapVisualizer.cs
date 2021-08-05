@@ -7,15 +7,32 @@ using UnityEngine.Tilemaps;
 public class TilemapVisualizer : MonoBehaviour
 {
     [SerializeField]
-    private Tilemap floorTilemap, wallTilemap;
+    private Tilemap floorTilemap, wallTilemap, transitionsTilemap, torchTilemap;
     [SerializeField]
     private TileBase floorTile, wallTop, wallSideRight, wallSideLeft, wallBottom, wallFull, 
         wallInnerCornerDownLeft, wallInnerCornerDownRight,
         wallDiagonalCornerDownLeft, wallDiagonalCornerDownRight,
-        wallDiagonalCornerUpRight, wallDiagonalCornerUpLeft;
+        wallDiagonalCornerUpRight, wallDiagonalCornerUpLeft,
+        ladderUpTile, ladderDownTile, torchTile;
+
+    public Tilemap getTorchTilemap() {
+        return torchTilemap;
+    }
 
     public void PaintFloorTiles(IEnumerable<Vector2Int> floorPositions) {
         PaintTiles(floorPositions, floorTilemap, floorTile);
+    }
+
+    public void PaintLadderUp(IEnumerable<Vector2Int> floorPositions) {
+        PaintTiles(floorPositions, transitionsTilemap, ladderUpTile);
+    }
+
+    public void PaintLadderDown(IEnumerable<Vector2Int> floorPositions) {
+        PaintTiles(floorPositions, transitionsTilemap, ladderDownTile);
+    }
+
+    public void PaintTorch(IEnumerable<Vector2Int> positions) {
+        PaintTiles(positions, torchTilemap, torchTile);
     }
 
     private void PaintTiles(IEnumerable<Vector2Int> positions, Tilemap tilemap, TileBase tile) {
@@ -77,5 +94,12 @@ public class TilemapVisualizer : MonoBehaviour
     public void Clear() {
         floorTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
+        transitionsTilemap.ClearAllTiles();
+        torchTilemap.ClearAllTiles();
+
+        int childs = torchTilemap.transform.childCount;
+        for (int i = childs - 1; i >= 0; i--) {
+            GameObject.DestroyImmediate( torchTilemap.transform.GetChild( i ).gameObject );
+        }
     }
 }

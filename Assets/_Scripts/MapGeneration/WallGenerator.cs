@@ -24,6 +24,7 @@ public static class WallGenerator
                     neighborsBinaryType += "0";
                 }
             }
+
             tilemapVisualizer.PaintSingleBasicWall(position, neighborsBinaryType);
         }
     }
