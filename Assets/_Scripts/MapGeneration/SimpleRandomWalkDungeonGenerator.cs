@@ -25,7 +25,7 @@ public class SimpleRandomWalkDungeonGenerator : AbstractDungeonGenerator
 
         // place torches
         TorchPlacementGenerator torchPlacementGenerator = new TorchPlacementGenerator(); 
-        torchPlacementGenerator.Generate(floorPositions, Direction2D.cardinalDirectionList, tilemapVisualizer);
+        torchPlacementGenerator.Generate(floorPositions, tilemapVisualizer);
     }
 
     protected HashSet<Vector2Int> RunRandomWalk(SimpleRandomWalkSO parameters, Vector2Int position)

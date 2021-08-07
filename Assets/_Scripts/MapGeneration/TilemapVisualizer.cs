@@ -13,7 +13,7 @@ public class TilemapVisualizer : MonoBehaviour
         wallInnerCornerDownLeft, wallInnerCornerDownRight,
         wallDiagonalCornerDownLeft, wallDiagonalCornerDownRight,
         wallDiagonalCornerUpRight, wallDiagonalCornerUpLeft,
-        ladderUpTile, ladderDownTile, torchTile;
+        ladderUpTile, ladderDownTile, torchLeftTile, torchTopTile, torchRightTile;
 
     public Tilemap getTorchTilemap() {
         return torchTilemap;
@@ -31,8 +31,16 @@ public class TilemapVisualizer : MonoBehaviour
         PaintTiles(floorPositions, transitionsTilemap, ladderDownTile);
     }
 
-    public void PaintTorch(IEnumerable<Vector2Int> positions) {
-        PaintTiles(positions, torchTilemap, torchTile);
+    public void PaintTorchLeft(IEnumerable<Vector2Int> positions) {
+        PaintTiles(positions, torchTilemap, torchLeftTile);
+    }
+
+    public void PaintTorchRight(IEnumerable<Vector2Int> positions) {
+        PaintTiles(positions, torchTilemap, torchRightTile);
+    }
+
+    public void PaintTorchTop(IEnumerable<Vector2Int> positions) {
+        PaintTiles(positions, torchTilemap, torchTopTile);
     }
 
     private void PaintTiles(IEnumerable<Vector2Int> positions, Tilemap tilemap, TileBase tile) {
