@@ -12,9 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13b75c95f34a00d4e8c04f76b73312e6, type: 3}
   m_Name: Torch_Top_Animated_Tile
   m_EditorClassIdentifier: 
-  m_AnimatedSprites: []
-  m_MinSpeed: 1
-  m_MaxSpeed: 1
+  m_AnimatedSprites:
+  - {fileID: 21300000, guid: c8d88e5c6f6ab3b4789fdc7ebdeabead, type: 3}
+  - {fileID: 21300000, guid: d326afd7c56885c4f8eede78e9873f3b, type: 3}
+  - {fileID: 21300000, guid: 3ba52318fa6a86c4ba00b0217f3c016c, type: 3}
+  - {fileID: 21300000, guid: eb8266142700127448db9ca75f9af371, type: 3}
+  m_MinSpeed: 10
+  m_MaxSpeed: 10
   m_AnimationStartTime: 0
   m_AnimationStartFrame: 0
   m_TileColliderType: 0

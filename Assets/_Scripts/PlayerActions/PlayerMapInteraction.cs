@@ -28,8 +28,6 @@ public class PlayerMapInteraction : MonoBehaviour
             currentFloor = (currentFloor + 1) % totalFloors;
             playerObject.transform.position = new Vector3((currentFloor * floorSpacing) % (totalFloors * floorSpacing), 0f, 0f);
             isOnObject = false;
-
-            Debug.Log("currentFloor: " + currentFloor);
         }
     }
 

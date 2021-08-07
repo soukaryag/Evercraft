@@ -45,8 +45,6 @@ public class ShadowCaster2DTileMap : MonoBehaviour
             generateShadowMeshMethod.Invoke(shadowCasterComponent, new object[] { meshField.GetValue(shadowCasterComponent), shapePathField.GetValue(shadowCasterComponent) });
         }
 
-        Debug.Log("Generate");
-
     }
     public void DestroyAllChildren()
     {
