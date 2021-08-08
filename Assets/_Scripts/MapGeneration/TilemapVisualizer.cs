@@ -110,10 +110,15 @@ public class TilemapVisualizer : MonoBehaviour
             GameObject.DestroyImmediate( torchTilemap.transform.GetChild( i ).gameObject );
         }
 
-        GameObject COINS = GameObject.Find("Coins");
-        int childsCoin = COINS.transform.childCount;
-        for (int i = childsCoin - 1; i >= 0; i--) {
-            GameObject.DestroyImmediate( COINS.transform.GetChild( i ).gameObject );
+        string[] parents = new string[] {"ChestParent", "CoinParent"};
+
+        foreach (string parent in parents) {
+            GameObject PARENT_OBJECT = GameObject.Find(parent);
+            int child = PARENT_OBJECT.transform.childCount;
+            for (int i = child - 1; i >= 0; i--) {
+                GameObject.DestroyImmediate( PARENT_OBJECT.transform.GetChild( i ).gameObject );
+            }
         }
+        
     }
 }

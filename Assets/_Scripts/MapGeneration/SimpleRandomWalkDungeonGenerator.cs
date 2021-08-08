@@ -11,9 +11,7 @@ public class SimpleRandomWalkDungeonGenerator : AbstractDungeonGenerator
     protected SimpleRandomWalkSO randomWalkParameters;
 
     [SerializeField]
-    protected Sprite coinSprite;
-    [SerializeField]
-    protected RuntimeAnimatorController coinAnimation;
+    protected GameObject chestPrefab;
 
     protected override void RunProceduralGeneration()
     {
@@ -32,9 +30,9 @@ public class SimpleRandomWalkDungeonGenerator : AbstractDungeonGenerator
         TorchPlacementGenerator torchPlacementGenerator = new TorchPlacementGenerator(); 
         torchPlacementGenerator.Generate(floorPositions, tilemapVisualizer);
 
-        // generate coin loot
-        CoinSpawnGenerator coinSpawnGenerator = new CoinSpawnGenerator();
-        coinSpawnGenerator.Generate(floorPositions, coinSprite, coinAnimation);
+        // generate loot chest
+        LootChestGenerator lootChestGenerator = new LootChestGenerator();
+        lootChestGenerator.Generate(floorPositions, chestPrefab);
     }
 
     protected HashSet<Vector2Int> RunRandomWalk(SimpleRandomWalkSO parameters, Vector2Int position)

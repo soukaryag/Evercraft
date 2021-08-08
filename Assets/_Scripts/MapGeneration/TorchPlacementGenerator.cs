@@ -31,7 +31,7 @@ public class TorchPlacementGenerator
     private Vector2 rightOffset = new Vector2(0.4f, 0.25f);
 
     public void Generate(HashSet<Vector2Int> floorPositions, TilemapVisualizer tilemapVisualizer) {
-        bool isTop = true;
+        // bool isTop = true;
         bool isNotTop = false;
 
         // LEFT

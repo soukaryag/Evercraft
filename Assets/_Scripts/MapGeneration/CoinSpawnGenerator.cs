@@ -4,69 +4,30 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.Experimental.Rendering.Universal;
 using Random = UnityEngine.Random;
-using Ludiq;
-using Bolt;
 
-public class CoinSpawnGenerator
+public class CoinSpawnGenerator : MonoBehaviour
 {
-    private Color coinGlowColor = new Color();
-    private float innerRadius = 0.22f;
-    private float outerRadius = 1.75f;
-    private float intensity = 0.6f;
-    private float shadowIntensity = 0.9f;
-    private Vector3 coinSpriteScale = new Vector3(0.5f, 0.5f, 0f);
-
-
-    public void Generate(HashSet<Vector2Int> floorPositions, Sprite coinSprite, RuntimeAnimatorController coinAnimation)
+    public void Generate(Vector3 chestPosition, GameObject coinPrefab)
     {
-        HashSet<Vector2Int> coinPositions = new HashSet<Vector2Int>();
+        HashSet<Vector3> coinPositions = new HashSet<Vector3>();
 
-        foreach (var position in floorPositions)
+        for (int i = 0; i < Random.Range(1, 10); i++)
         {
-            if (Random.Range(0, 100) < 3)
-            {
-                coinPositions.Add(position);
-            }
+            coinPositions.Add(chestPosition + new Vector3(Random.Range(-2f, 2f), Random.Range(-2f, 0f), 0));
         }
 
-        CreateCoinSprite(coinPositions, coinSprite, coinAnimation);
+        CreateCoinSprite(coinPositions, coinPrefab);
     }
 
-    public void CreateCoinSprite(HashSet<Vector2Int> coinPositions, Sprite coinSprite, RuntimeAnimatorController coinAnimation)
+    public void CreateCoinSprite(HashSet<Vector3> coinPositions, GameObject coinPrefab)
     {
-        int i = 0;
-        UnityEngine.ColorUtility.TryParseHtmlString("#5F89DD", out coinGlowColor);
-
-        GameObject COINS = GameObject.Find("Coins");
+        GameObject COINS = GameObject.Find("CoinParent");
 
         foreach (var position in coinPositions)
         {
-            GameObject coinPlacement = new GameObject("coin_glow_" + i);
+            GameObject coinPlacement = Instantiate(coinPrefab, position, Quaternion.identity);
             coinPlacement.transform.parent = COINS.transform;
-
-            SpriteRenderer coinPlacementSprite = coinPlacement.AddComponent<SpriteRenderer>();
-            coinPlacementSprite.sprite = coinSprite;
-
-            Light2D coinPlacementLight2d = coinPlacement.AddComponent<Light2D>();
-            coinPlacementLight2d.color = coinGlowColor;
-            coinPlacementLight2d.lightType = Light2D.LightType.Point;
-            coinPlacementLight2d.pointLightOuterRadius = outerRadius;
-            coinPlacementLight2d.pointLightInnerRadius = innerRadius;
-            coinPlacementLight2d.intensity = intensity;
-            coinPlacementLight2d.shadowIntensity = shadowIntensity;
-            coinPlacement.transform.position = (Vector3Int)position;
-            coinPlacement.transform.localScale = coinSpriteScale;
-
-            CircleCollider2D coinPlacementCollider = coinPlacement.AddComponent<CircleCollider2D>();
-            coinPlacementCollider.isTrigger = true;
-
-            Animator coinPlacementAnimator = coinPlacement.AddComponent<Animator>();
-            coinPlacementAnimator.runtimeAnimatorController = coinAnimation;
-
-            i += 1;
         }
     }
 }

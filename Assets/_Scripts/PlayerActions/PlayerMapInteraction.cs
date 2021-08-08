@@ -43,6 +43,8 @@ public class PlayerMapInteraction : MonoBehaviour
             interactiveText.text = "Press Space to Consume";
         } else if (collision.gameObject.name == "WeaponPickup") {
             interactiveText.text = "Press Space to Equip";
+        } else {
+            return;
         }
         
         interactiveText.enabled = true;
