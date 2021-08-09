@@ -10,7 +10,7 @@ public class CollectFloorLoot : MonoBehaviour
     [SerializeField]
     Text interactiveText;
     [SerializeField]
-    protected GameObject coinPrefab;
+    protected GameObject coinPrefab, healthFlaskPrefab, keyPrefab;
 
     private string isOnLootObject = null;
 
@@ -18,14 +18,14 @@ public class CollectFloorLoot : MonoBehaviour
 
     private int coinCount = 0;
 
-    private CoinSpawnGenerator coinSpawnGenerator = new CoinSpawnGenerator();
+    private LootSpawnGenerator lootSpawnGenerator = new LootSpawnGenerator();
 
     void Update()
     {
         if (Input.GetKey(KeyCode.Space)) {
             if (isOnLootObject == "CHEST")
             {
-                coinSpawnGenerator.Generate(currentObject.transform.position, coinPrefab);
+                lootSpawnGenerator.Generate(currentObject.transform.position, coinPrefab, healthFlaskPrefab, keyPrefab);
 
                 Destroy(currentObject);
                 isOnLootObject = null;
@@ -38,7 +38,7 @@ public class CollectFloorLoot : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.transform.parent && collision.gameObject.transform.parent.name == "CoinParent") {
+        if (collision.gameObject.transform.name == "Coin(Clone)") {
             coinCount += 1;
             coinCollectedText.text = "Coins: " + coinCount;
             Destroy(collision.gameObject);

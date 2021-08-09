@@ -110,7 +110,7 @@ public class TilemapVisualizer : MonoBehaviour
             GameObject.DestroyImmediate( torchTilemap.transform.GetChild( i ).gameObject );
         }
 
-        string[] parents = new string[] {"ChestParent", "CoinParent"};
+        string[] parents = new string[] {"ChestParent", "LootDropParent"};
 
         foreach (string parent in parents) {
             GameObject PARENT_OBJECT = GameObject.Find(parent);
