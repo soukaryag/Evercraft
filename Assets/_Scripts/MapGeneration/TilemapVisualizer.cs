@@ -3,13 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Random = UnityEngine.Random;
 
 public class TilemapVisualizer : MonoBehaviour
 {
     [SerializeField]
     private Tilemap floorTilemap, wallTilemap, transitionsTilemap, torchTilemap;
     [SerializeField]
-    private TileBase floorTile, wallTop, wallSideRight, wallSideLeft, wallBottom, wallFull, 
+    private TileBase floorTile0, floorTile1_1, floorTile1_2, floorTile1_3, floorTile2_1, floorTile2_2, 
+        floorTile3, floorTile4, floorTile5, 
+        wallTop, wallSideRight, wallSideLeft, wallBottom, wallFull, 
         wallInnerCornerDownLeft, wallInnerCornerDownRight,
         wallDiagonalCornerDownLeft, wallDiagonalCornerDownRight,
         wallDiagonalCornerUpRight, wallDiagonalCornerUpLeft,
@@ -20,7 +23,52 @@ public class TilemapVisualizer : MonoBehaviour
     }
 
     public void PaintFloorTiles(IEnumerable<Vector2Int> floorPositions) {
-        PaintTiles(floorPositions, floorTilemap, floorTile);
+        TileBase[] floorTilesAlternate_1 = new TileBase[] {floorTile1_1, floorTile1_2, floorTile1_3};
+        TileBase[] floorTilesAlternate_2 = new TileBase[] {floorTile2_1, floorTile2_2};
+        TileBase[] floorTilesAlternate_3 = new TileBase[] {floorTile3};
+        TileBase[] floorTilesAlternate_4 = new TileBase[] {floorTile4};
+        TileBase[] floorTilesAlternate_5 = new TileBase[] {floorTile5};
+
+        foreach (var position in floorPositions) {
+            PaintSingleTile(floorTilemap, floorTile0, position);
+        }
+
+        int state = 0;
+        HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
+        foreach (var position in floorPositions) {
+            if (visited.Contains(position)) {continue;}
+            state = Random.Range(0, 100);
+
+            if (state == 1) {
+                PaintSingleTile(floorTilemap, floorTile1_1, position);
+                visited.Add(position);
+
+                Vector2Int nextTile = position + new Vector2Int(1, 0);
+                PaintSingleTile(floorTilemap, floorTile1_2, nextTile);
+                visited.Add(nextTile);
+
+                Vector2Int nextNextTile = position + new Vector2Int(2, 0);
+                PaintSingleTile(floorTilemap, floorTile1_3, nextNextTile);
+                visited.Add(nextNextTile);
+            } else if (state == 2) {
+                PaintSingleTile(floorTilemap, floorTile2_1, position);
+                visited.Add(position);
+
+                Vector2Int nextTile = position + new Vector2Int(1, 0);
+                PaintSingleTile(floorTilemap, floorTile2_2, nextTile);
+                visited.Add(nextTile);
+            } else if (state == 3) {
+                PaintSingleTile(floorTilemap, floorTile3, position);
+                visited.Add(position);
+            } else if (state == 4) {
+                PaintSingleTile(floorTilemap, floorTile4, position);
+                visited.Add(position);
+            } else if (state == 5) {
+                PaintSingleTile(floorTilemap, floorTile5, position);
+                visited.Add(position);
+            }
+            
+        }
     }
 
     public void PaintLadderUp(IEnumerable<Vector2Int> floorPositions) {

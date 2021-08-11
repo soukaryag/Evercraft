@@ -38,7 +38,12 @@ public class SimpleRandomWalkDungeonGenerator : AbstractDungeonGenerator
     protected HashSet<Vector2Int> RunRandomWalk(SimpleRandomWalkSO parameters, Vector2Int position)
     {
         var currentPosition = position;
-        HashSet<Vector2Int> floorPositions = new HashSet<Vector2Int>();
+        HashSet<Vector2Int> floorPositions = new HashSet<Vector2Int>() {position};
+        foreach (var direction in Direction2D.eightDirectionList) {
+            floorPositions.Add(position + direction);
+        }
+
+
         for (int i = 0; i < parameters.iterations; i++)
         {
             var path = ProceduralGenerationAlgorithms.SimpleRandomWalk(currentPosition, parameters.walkLength);
