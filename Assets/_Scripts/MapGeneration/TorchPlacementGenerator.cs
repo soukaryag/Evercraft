@@ -26,20 +26,19 @@ public class TorchPlacementGenerator
     [SerializeField]
     private float shadowIntensity = 0.75f;
     
+
     private Vector2 leftOffset = new Vector2(-0.4f, 0.25f);
     private Vector2 topOffset = new Vector2(0f, 0.25f);
     private Vector2 rightOffset = new Vector2(0.4f, 0.25f);
 
-    public void Generate(HashSet<Vector2Int> floorPositions, TilemapVisualizer tilemapVisualizer) {
-        // bool isTop = true;
-        bool isNotTop = false;
-
+    public void Generate(HashSet<Vector2Int> floorPositions, TilemapVisualizer tilemapVisualizer, FlowMacro flowMacro, int probability)
+    {
         // LEFT
-        HashSet<Vector2Int> leftTorchPositions = GenerateSide(floorPositions, new Vector2Int(-1, 0), tilemapVisualizer, leftOffset, isNotTop);
+        HashSet<Vector2Int> leftTorchPositions = GenerateSide(floorPositions, new Vector2Int(-1, 0), tilemapVisualizer, flowMacro, leftOffset, probability);
         tilemapVisualizer.PaintTorchLeft(leftTorchPositions);
 
         // RIGHT
-        HashSet<Vector2Int> rightTorchPositions = GenerateSide(floorPositions, new Vector2Int(1, 0), tilemapVisualizer, rightOffset, isNotTop);
+        HashSet<Vector2Int> rightTorchPositions = GenerateSide(floorPositions, new Vector2Int(1, 0), tilemapVisualizer, flowMacro, rightOffset, probability);
         tilemapVisualizer.PaintTorchRight(rightTorchPositions);
 
         // TOP
@@ -47,26 +46,25 @@ public class TorchPlacementGenerator
         // tilemapVisualizer.PaintTorchTop(topTorchPositions);
     }
 
-    public HashSet<Vector2Int> GenerateSide(HashSet<Vector2Int> floorPositions, Vector2Int side, TilemapVisualizer tilemapVisualizer, Vector2 offset, bool isTop)
+    public HashSet<Vector2Int> GenerateSide(HashSet<Vector2Int> floorPositions, Vector2Int side, TilemapVisualizer tilemapVisualizer, FlowMacro flowMacro, Vector2 offset, int probability)
     {
         HashSet<Vector2Int> torchPositions = new HashSet<Vector2Int>();
 
-        foreach (var position in floorPositions) {
+        foreach (var position in floorPositions)
+        {
             var neighborPosition = position + side;
             var randInt = Random.Range(0, 100);
-            if (randInt < 4 && floorPositions.Contains(neighborPosition) == false) {
-                if (isTop) {
-                    torchPositions.Add(neighborPosition);
-                } else {
-                    torchPositions.Add(position);
-                }
+            if (randInt <= probability && floorPositions.Contains(neighborPosition) == false)
+            {
+                torchPositions.Add(position);
             }
         }
 
         int i = 0;
         UnityEngine.ColorUtility.TryParseHtmlString("#BF693A", out innerTorchColor);
 
-        foreach (var position in torchPositions) {
+        foreach (var position in torchPositions)
+        {
             GameObject torchPlacementInner = new GameObject("torch_placement_" + i + "_0");
             torchPlacementInner.transform.parent = tilemapVisualizer.getTorchTilemap().transform;
 
@@ -93,9 +91,6 @@ public class TorchPlacementGenerator
 
             var flowMachine = torchPlacementComponentInner.AddComponent<FlowMachine>();
             flowMachine.nest.source = GraphSource.Macro;
-
-            var lightFlowMacroPath = Path.Combine("Assets", "FlowMachine", "Light.asset");
-            FlowMacro flowMacro = AssetDatabase.LoadAssetAtPath<FlowMacro>(lightFlowMacroPath);
 
             flowMachine.nest.SwitchToMacro(flowMacro);
             flowMachine.enabled = true;

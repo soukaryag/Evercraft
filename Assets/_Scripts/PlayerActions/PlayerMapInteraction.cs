@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
+using Photon.Pun;
 
 public class PlayerMapInteraction : MonoBehaviour
 {
@@ -10,51 +11,58 @@ public class PlayerMapInteraction : MonoBehaviour
     [SerializeField]
     Text interactiveText;
 
-    bool isOnObject = false;
+    bool isOnTeleporter = false;
 
     [SerializeField]
     int currentFloor = 0;
-    [SerializeField]
-    int totalFloors = 3;
-    [SerializeField]
-    int floorSpacing = 50;
+    PhotonView view;
+
+    private CorridorFirstDungeonGenerator corridorFirstDungeonGenerator;
+
+    void Awake()
+    {
+        // this.corridorFirstDungeonGenerator = new CorridorFirstDungeonGenerator();
+        view = GetComponent<PhotonView>();
+        interactiveText = GameObject.Find("InteractiveText").GetComponent<Text>();
+    }
 
 
     void Update()
     {
-        if (isOnObject && Input.GetKey(KeyCode.Space))
+        if (view.IsMine && isOnTeleporter && Input.GetKey(KeyCode.E))
         {
-            var playerObject = GameObject.Find("Player");
-            currentFloor = (currentFloor + 1) % totalFloors;
-            playerObject.transform.position = new Vector3((currentFloor * floorSpacing) % (totalFloors * floorSpacing), 0f, 0f);
-            isOnObject = false;
+            currentFloor++;
+            // this.corridorFirstDungeonGenerator.CreateNextFloor();
+            this.transform.position = new Vector3(0f, 0f, 0f);
+            isOnTeleporter = false;
         }
     }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.name == "FloorDown") {
-            interactiveText.text = "Press Space to Descend";
-        } else if (collision.gameObject.name == "FloorUp") {
-            interactiveText.text = "Press Space to Ascend";
-        } else if (collision.gameObject.name == "Treasure") {
-            interactiveText.text = "Press Space to Open";
-        } else if (collision.gameObject.name == "HealthPickup") {
-            interactiveText.text = "Press Space to Consume";
-        } else if (collision.gameObject.name == "WeaponPickup") {
-            interactiveText.text = "Press Space to Equip";
-        } else {
-            return;
+        if (view.IsMine)
+        {
+            if (collision.gameObject.name == "Teleporter(Clone)")
+            {
+                interactiveText.text = "Press E to Ascend";
+                isOnTeleporter = true;
+            }
+            else
+            {
+                return;
+            }
+
+            interactiveText.enabled = true;
         }
-        
-        interactiveText.enabled = true;
-        isOnObject = true;
     }
 
     void OnTriggerExit2D(Collider2D collision)
     {
-        interactiveText.enabled = false;
-        isOnObject = false;
+        if (view.IsMine)
+        {
+            interactiveText.enabled = false;
+            isOnTeleporter = false;
+        }
     }
 
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
 public class CollectFloorLoot : MonoBehaviour
 {
@@ -11,18 +12,21 @@ public class CollectFloorLoot : MonoBehaviour
     Text interactiveText;
     [SerializeField]
     protected GameObject coinPrefab, healthFlaskPrefab, keyPrefab;
-
     private string isOnLootObject = null;
-
     private GameObject currentObject = null;
-
     private int coinCount = 0;
-
     private LootSpawnGenerator lootSpawnGenerator = new LootSpawnGenerator();
+    PhotonView view;
+
+    private void Start() {
+        view = GetComponent<PhotonView>();
+        coinCollectedText = GameObject.Find("CoinCount").GetComponent<Text>(); 
+        interactiveText = GameObject.Find("InteractiveText").GetComponent<Text>(); 
+    }
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.Space)) {
+        if (view.IsMine && Input.GetKey(KeyCode.Space)) {
             if (isOnLootObject == "CHEST")
             {
                 lootSpawnGenerator.Generate(currentObject.transform.position, coinPrefab, healthFlaskPrefab, keyPrefab);
@@ -32,28 +36,30 @@ public class CollectFloorLoot : MonoBehaviour
                 currentObject = null;
             }
         }
-        
     }
-
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.transform.name == "Coin(Clone)") {
-            coinCount += 1;
-            coinCollectedText.text = "Coins: " + coinCount;
-            Destroy(collision.gameObject);
-        } else if (collision.gameObject.transform.parent && collision.gameObject.transform.parent.name == "ChestParent") {
-            isOnLootObject = "CHEST";
-            currentObject = collision.gameObject;
+        if (view.IsMine) {
+            if (collision.gameObject.transform.name == "Coin(Clone)") {
+                coinCount += 1;
+                coinCollectedText.text = "Coins: " + coinCount;
+                Destroy(collision.gameObject);
+            } else if (collision.gameObject.transform.parent && collision.gameObject.transform.parent.name == "ChestParent") {
+                isOnLootObject = "CHEST";
+                currentObject = collision.gameObject;
 
-            interactiveText.text = "Press Space to Open Chest";
-            interactiveText.enabled = true;
+                interactiveText.text = "Press Space to Open Chest";
+                interactiveText.enabled = true;
+            }
         }
     }
 
     void OnTriggerExit2D(Collider2D collision)
     {
-        interactiveText.enabled = false;
-        isOnLootObject = null;
+        if (view.IsMine) {
+            interactiveText.enabled = false;
+            isOnLootObject = null;
+        }
     }
 }

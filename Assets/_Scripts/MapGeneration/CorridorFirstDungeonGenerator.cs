@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using Ludiq;
+using Bolt;
 
 public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 {
@@ -14,8 +16,7 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     [Range(0.1f,1)]
     private float roomPercent = 0.8f;
 
-    protected override void RunProceduralGeneration()
-    {
+    protected override void RunProceduralGeneration() {
         CorridorFirstGeneration();
     }
 
@@ -28,14 +29,28 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         HashSet<Vector2Int> roomPositions = CreateRooms(potentialRoomPositions);
 
         List<Vector2Int> deadEnds = FindAllDeadEnds(floorPositions);
-
         CreateRoomsAtDeadEnd(deadEnds, roomPositions);
 
         floorPositions.UnionWith(roomPositions);
 
+        foreach (var direction in Direction2D.eightDirectionList) {
+            floorPositions.Add(new Vector2Int(0, 0) + direction);
+        }
+
         tilemapVisualizer.PaintFloorTiles(floorPositions);
         WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
-        FloorTransitionGenerator.CreateLadderDown(floorPositions.ElementAt(Random.Range(0, floorPositions.Count)), tilemapVisualizer);
+        
+        // create teleporter
+        FloorTransitionGenerator floorTransitionGenerator = new FloorTransitionGenerator(); 
+        floorTransitionGenerator.CreateTeleporterOut(floorPositions.ElementAt(Random.Range(0, floorPositions.Count)), teleporterPrefab, teleporterInPrefab);
+
+        // place torches
+        TorchPlacementGenerator torchPlacementGenerator = new TorchPlacementGenerator(); 
+        torchPlacementGenerator.Generate(floorPositions, tilemapVisualizer, flowMacro, 8);
+
+        // generate loot chest
+        LootChestGenerator lootChestGenerator = new LootChestGenerator();
+        lootChestGenerator.Generate(floorPositions, chestPrefab);
     }
 
     private void CreateRoomsAtDeadEnd(List<Vector2Int> deadEnds, HashSet<Vector2Int> roomFloors) {
@@ -72,12 +87,34 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 
         List<Vector2Int> roomsToCreate = potentialRoomPositions.OrderBy(x => Guid.NewGuid()).Take(roomToCreateCount).ToList();
 
+        int treasureRoomIdx = Random.Range(1, roomsToCreate.Count);
+        Vector2Int treasureRoomCenter = roomsToCreate.ElementAt(treasureRoomIdx);
+
+        int i = 0;
         foreach (var roomPosition in roomsToCreate) {
+            if (i == treasureRoomIdx) continue;
+
             var roomFloor = RunRandomWalk(randomWalkParameters, roomPosition);
             roomPositions.UnionWith(roomFloor);
+
+            i += 1;
         }
 
+        HashSet<Vector2Int> trasureRoomFloorPositions = CreateTreasureRoom(treasureRoomCenter);
+        roomPositions.UnionWith(trasureRoomFloorPositions);
+
         return roomPositions;
+    }
+
+    private HashSet<Vector2Int> CreateTreasureRoom(Vector2Int treasureRoomCenter) {
+        HashSet<Vector2Int> trasureRoomFloorPositions = new HashSet<Vector2Int>();
+        for (int j = -3; j <= 3; j++) {
+            for (int k = -3; k <= 3; k++) {
+                trasureRoomFloorPositions.Add(treasureRoomCenter + new Vector2Int(j, k));
+            }
+        }
+
+        return trasureRoomFloorPositions;
     }
 
     private void CreateCorridors(HashSet<Vector2Int> floorPositions, HashSet<Vector2Int> potentialRoomPositions) {
@@ -89,8 +126,7 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             var corridor = ProceduralGenerationAlgorithms.RandomWalkCorridor(currentPosition, corridorLength);
             currentPosition = corridor[corridor.Count - 1];
             potentialRoomPositions.Add(currentPosition);
-            floorPositions.UnionWith(corridor); 
-
+            floorPositions.UnionWith(corridor);
         }
     }
 }

@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 public class TilemapVisualizer : MonoBehaviour
 {
     [SerializeField]
-    private Tilemap floorTilemap, wallTilemap, transitionsTilemap, torchTilemap;
+    private Tilemap floorTilemap, wallTilemap, torchTilemap;
     [SerializeField]
     private TileBase floorTile0, floorTile1_1, floorTile1_2, floorTile1_3, floorTile2_1, floorTile2_2, 
         floorTile3, floorTile4, floorTile5, 
@@ -22,12 +22,15 @@ public class TilemapVisualizer : MonoBehaviour
         return torchTilemap;
     }
 
-    public void PaintFloorTiles(IEnumerable<Vector2Int> floorPositions) {
+    public void PaintFloorTiles(IEnumerable<Vector2Int> floorPositionsEnumerable) {
         TileBase[] floorTilesAlternate_1 = new TileBase[] {floorTile1_1, floorTile1_2, floorTile1_3};
         TileBase[] floorTilesAlternate_2 = new TileBase[] {floorTile2_1, floorTile2_2};
         TileBase[] floorTilesAlternate_3 = new TileBase[] {floorTile3};
         TileBase[] floorTilesAlternate_4 = new TileBase[] {floorTile4};
         TileBase[] floorTilesAlternate_5 = new TileBase[] {floorTile5};
+
+        HashSet<Vector2Int> floorPositions = new HashSet<Vector2Int>();
+        floorPositions.UnionWith(floorPositionsEnumerable);
 
         foreach (var position in floorPositions) {
             PaintSingleTile(floorTilemap, floorTile0, position);
@@ -44,39 +47,40 @@ public class TilemapVisualizer : MonoBehaviour
                 visited.Add(position);
 
                 Vector2Int nextTile = position + new Vector2Int(1, 0);
-                PaintSingleTile(floorTilemap, floorTile1_2, nextTile);
-                visited.Add(nextTile);
+                if (floorPositions.Contains(nextTile)) {
+                    PaintSingleTile(floorTilemap, floorTile1_2, nextTile);
+                    visited.Add(nextTile);
 
-                Vector2Int nextNextTile = position + new Vector2Int(2, 0);
-                PaintSingleTile(floorTilemap, floorTile1_3, nextNextTile);
-                visited.Add(nextNextTile);
+                    Vector2Int nextNextTile = position + new Vector2Int(2, 0);
+                    if (floorPositions.Contains(nextNextTile)) {
+                        PaintSingleTile(floorTilemap, floorTile1_3, nextNextTile);
+                        visited.Add(nextNextTile);
+                    }
+                
+                }
+                
             } else if (state == 2) {
                 PaintSingleTile(floorTilemap, floorTile2_1, position);
                 visited.Add(position);
 
                 Vector2Int nextTile = position + new Vector2Int(1, 0);
-                PaintSingleTile(floorTilemap, floorTile2_2, nextTile);
-                visited.Add(nextTile);
-            } else if (state == 3) {
+                if (floorPositions.Contains(nextTile)) {
+                    PaintSingleTile(floorTilemap, floorTile2_2, nextTile);
+                    visited.Add(nextTile);
+                }
+                
+            } else if (state <= 6) {
                 PaintSingleTile(floorTilemap, floorTile3, position);
                 visited.Add(position);
-            } else if (state == 4) {
+            } else if (state <= 9) {
                 PaintSingleTile(floorTilemap, floorTile4, position);
                 visited.Add(position);
-            } else if (state == 5) {
+            } else if (state == 10) {
                 PaintSingleTile(floorTilemap, floorTile5, position);
                 visited.Add(position);
             }
             
         }
-    }
-
-    public void PaintLadderUp(IEnumerable<Vector2Int> floorPositions) {
-        PaintTiles(floorPositions, transitionsTilemap, ladderUpTile);
-    }
-
-    public void PaintLadderDown(IEnumerable<Vector2Int> floorPositions) {
-        PaintTiles(floorPositions, transitionsTilemap, ladderDownTile);
     }
 
     public void PaintTorchLeft(IEnumerable<Vector2Int> positions) {
@@ -150,7 +154,6 @@ public class TilemapVisualizer : MonoBehaviour
     public void Clear() {
         floorTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
-        transitionsTilemap.ClearAllTiles();
         torchTilemap.ClearAllTiles();
 
         int childs = torchTilemap.transform.childCount;
@@ -158,7 +161,7 @@ public class TilemapVisualizer : MonoBehaviour
             GameObject.DestroyImmediate( torchTilemap.transform.GetChild( i ).gameObject );
         }
 
-        string[] parents = new string[] {"ChestParent", "LootDropParent"};
+        string[] parents = new string[] {"ChestParent", "LootDropParent", "TeleporterParent"};
 
         foreach (string parent in parents) {
             GameObject PARENT_OBJECT = GameObject.Find(parent);

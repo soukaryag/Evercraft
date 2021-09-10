@@ -22,8 +22,8 @@ public class ShadowCaster2DTileMap : MonoBehaviour
                                     .GetMethod("GenerateShadowMesh", BindingFlags.Public | BindingFlags.Static);
     public void Generate()
     {
-
         tilemapCollider = GetComponent<CompositeCollider2D>();
+
 
         for (int i = 0; i < tilemapCollider.pathCount; i++)
         {
@@ -44,17 +44,15 @@ public class ShadowCaster2DTileMap : MonoBehaviour
             meshField.SetValue(shadowCasterComponent, new Mesh());
             generateShadowMeshMethod.Invoke(shadowCasterComponent, new object[] { meshField.GetValue(shadowCasterComponent), shapePathField.GetValue(shadowCasterComponent) });
         }
-
     }
+
     public void DestroyAllChildren()
     {
-
         var tempList = transform.Cast<Transform>().ToList();
         foreach (var child in tempList)
         {
             DestroyImmediate(child.gameObject);
         }
-
     }
 
 }
