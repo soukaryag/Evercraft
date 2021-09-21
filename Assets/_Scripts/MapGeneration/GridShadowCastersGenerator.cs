@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
 
 public class GridShadowCastersGenerator : MonoBehaviour {
@@ -11,6 +10,10 @@ public class GridShadowCastersGenerator : MonoBehaviour {
 
     bool[,] hits;
     GameObject[,] instances;
+
+    // void Start() {
+    //     var casters = Generate();
+    // }
 
     public GameObject[] Generate() {
         Debug.Log("### Generating ShadowCasters ###");
@@ -87,8 +90,8 @@ public class GridShadowCastersGenerator : MonoBehaviour {
 
                         // create new shadowCasterPrefab instance
 
-                    currentInstance = (GameObject)PrefabUtility.InstantiatePrefab(shadowCasterPrefab, shadowCastersContainer);
-                    currentInstance.transform.position = new Vector3(bottomLeft.x + x, bottomLeft.y + y + 0.2f, 0.0f);
+                        currentInstance = (GameObject)Instantiate(shadowCasterPrefab, shadowCastersContainer);
+                        currentInstance.transform.position = new Vector3(bottomLeft.x + x, bottomLeft.y + y + 0.2f, 0.0f);
                     } else {
 
                         // stretch prevois shadowCasterPrefab instance
@@ -97,6 +100,7 @@ public class GridShadowCastersGenerator : MonoBehaviour {
                         currentInstance.transform.Translate(new Vector3(0.5f, 0.0f, 0.0f));
                     }
 
+                    currentInstance.name += "_" + x.ToString() + "_" + y.ToString();
                     instances[x, y] = currentInstance;
                     previousWasHit = true;
                 } else {
@@ -171,26 +175,26 @@ public class GridShadowCastersGenerator : MonoBehaviour {
     }
 }
 
-[CustomEditor(typeof(GridShadowCastersGenerator))]
-public class GridShadowCastersGeneratorEditor : Editor {
+// [CustomEditor(typeof(GridShadowCastersGenerator))]
+// public class GridShadowCastersGeneratorEditor : Editor {
 
-    public override void OnInspectorGUI() {
-        DrawDefaultInspector();
+//     public override void OnInspectorGUI() {
+//         DrawDefaultInspector();
 
-        if (GUILayout.Button("Generate")) {
-            var generator = (GridShadowCastersGenerator)target;
+//         if (GUILayout.Button("Generate")) {
+//             var generator = (GridShadowCastersGenerator)target;
 
-            Undo.RecordObject(generator.shadowCastersContainer, "GridShadowCastersGenerator.generate"); // this does not work :(
+//             Undo.RecordObject(generator.shadowCastersContainer, "GridShadowCastersGenerator.generate"); // this does not work :(
 
-            var casters = generator.Generate();
+//             var casters = generator.Generate();
 
-            // as a hack to make the editor save the shadowcaster instances, we rename them now instead of when theyre generated.
+//             // as a hack to make the editor save the shadowcaster instances, we rename them now instead of when theyre generated.
 
-            Undo.RecordObjects(casters, "GridShadowCastersGenerator name prefab instances");
+//             Undo.RecordObjects(casters, "GridShadowCastersGenerator name prefab instances");
 
-            for (var i = 0; i < casters.Length; i++) {
-                casters[i].name += "_" + i.ToString();
-            }
-        }
-    }
-}
+//             for (var i = 0; i < casters.Length; i++) {
+//                 casters[i].name += "_" + i.ToString();
+//             }
+//         }
+//     }
+// }

@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,14 +6,30 @@ using Random = UnityEngine.Random;
 
 public class MapRoomGenerator : AbstractDungeonGenerator
 {
-    public int mapSize;
+    private int mapSize = 8; // default
     private int mapMiddle;
     public static int[,] mapLayout;
 
-    public int roomSize;
+    private int roomSize = 30; // default
     private int roomMiddle;
     private HashSet<Vector2Int> floorPositions;
+    private GameObject roomExitParent;
 
+    [SerializeField]
+    private GameObject RoomExitPrefab;
+
+    public int[,] GenerateDungeonPublicMethod(TilemapVisualizer tV, int mapSizeParam, int roomSizeParam) {
+        if (tilemapVisualizer == null) {
+            tilemapVisualizer = tV;
+        }
+
+        mapSize = mapSizeParam;
+        roomSize = roomSizeParam;
+        tilemapVisualizer.Clear();
+        RunProceduralGeneration();
+
+        return mapLayout;
+    }
 
     protected override void RunProceduralGeneration()
     {
@@ -20,12 +37,14 @@ public class MapRoomGenerator : AbstractDungeonGenerator
         floorPositions = new HashSet<Vector2Int>();
         mapMiddle = (int)(mapSize / 2) - 1;
         roomMiddle = (int)(roomSize / 2);
+        roomExitParent = GameObject.Find("RoomExitParent");
 
         CreateMapLayout();
         CreateRooms();
         CreateRoomTransitions();
 
         DrawTiles();
+        tilemapVisualizer.ShiftFloorTilemapDown();
     }
 
     void CreateMapLayout()
@@ -45,7 +64,7 @@ public class MapRoomGenerator : AbstractDungeonGenerator
             {
                 if (mapLayout[i, j] == 1)
                 {
-                    RunAlgorithmicGeneration(new Vector2Int(i * roomSize, j * roomSize));
+                    RunAlgorithmicGeneration(new Vector2Int(i * 2 * roomSize, j * 2 * roomSize));
                 }
             }
         }
@@ -61,22 +80,22 @@ public class MapRoomGenerator : AbstractDungeonGenerator
                 {
                     if (CoordsExist(i, j + 1) && mapLayout[i, j + 1] == 1)
                     {
-                        CreateTransitionUp(i * roomSize, j * roomSize);
+                        CreateTransitionUp(i * 2 * roomSize, j * 2 * roomSize);
                     }
 
                     if (CoordsExist(i, j - 1) && mapLayout[i, j - 1] == 1)
                     {
-                        CreateTransitionDown(i * roomSize, j * roomSize);
+                        CreateTransitionDown(i * 2 * roomSize, j * 2 * roomSize);
                     }
 
                     if (CoordsExist(i + 1, j) && mapLayout[i + 1, j] == 1)
                     {
-                        CreateTransitionRight(i * roomSize, j * roomSize);
+                        CreateTransitionRight(i * 2 * roomSize, j * 2 * roomSize);
                     }
 
                     if (CoordsExist(i - 1, j) && mapLayout[i - 1, j] == 1)
                     {
-                        CreateTransitionLeft(i * roomSize, j * roomSize);
+                        CreateTransitionLeft(i * 2 * roomSize, j * 2 * roomSize);
                     }
                 }
                     
@@ -91,6 +110,10 @@ public class MapRoomGenerator : AbstractDungeonGenerator
             floorPositions.Add(new Vector2Int(x - 1, y + dy));
             floorPositions.Add(new Vector2Int(x, y + dy));
         }
+
+        GameObject exit = (GameObject)Instantiate(RoomExitPrefab, new Vector3(x - 0.5f, y + roomMiddle, 0), Quaternion.identity);
+        exit.name = $"Exit,{x},{y},up";
+        exit.transform.parent = roomExitParent.transform;
     }
 
     void CreateTransitionDown(int x, int y)
@@ -100,6 +123,10 @@ public class MapRoomGenerator : AbstractDungeonGenerator
             floorPositions.Add(new Vector2Int(x - 1, y - dy));
             floorPositions.Add(new Vector2Int(x, y - dy));
         }
+
+        GameObject exit = (GameObject)Instantiate(RoomExitPrefab, new Vector3(x - 0.5f, y - roomMiddle, 0), Quaternion.identity);
+        exit.name = $"Exit,{x},{y},down";
+        exit.transform.parent = roomExitParent.transform;
     }
 
     void CreateTransitionRight(int x, int y)
@@ -109,6 +136,10 @@ public class MapRoomGenerator : AbstractDungeonGenerator
             floorPositions.Add(new Vector2Int(x + dx, y - 1));
             floorPositions.Add(new Vector2Int(x + dx, y));
         }
+
+        GameObject exit = (GameObject)Instantiate(RoomExitPrefab, new Vector3(x + roomMiddle, y - 0.5f, 0), Quaternion.identity);
+        exit.gameObject.name = $"Exit,{x},{y},right";
+        exit.transform.parent = roomExitParent.transform;
     }
 
     void CreateTransitionLeft(int x, int y)
@@ -118,6 +149,10 @@ public class MapRoomGenerator : AbstractDungeonGenerator
             floorPositions.Add(new Vector2Int(x - dx, y - 1));
             floorPositions.Add(new Vector2Int(x - dx, y));
         }
+
+        GameObject exit = (GameObject)Instantiate(RoomExitPrefab, new Vector3(x - roomMiddle, y - 0.5f, 0), Quaternion.identity);
+        exit.name = $"Exit,{x},{y},left";
+        exit.transform.parent = roomExitParent.transform;
     }
 
     void CreateBasicShape()
@@ -263,15 +298,19 @@ public class MapRoomGenerator : AbstractDungeonGenerator
 
     private void DrawTiles()
     {
+        tilemapVisualizer.PaintFloorOutskirtsTiles(mapLayout, mapSize, roomSize);
         tilemapVisualizer.PaintFloorTiles(floorPositions);
+        // tilemapVisualizer.PaintFloorDecor(floorPositions); // replace with inserting game objects so bushes can be destroyed
+        tilemapVisualizer.PaintOuterDecor(floorPositions);
         WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
     }
 
-    private void RunProceduralGenerationFloor(Vector2Int startPosition)
-    {
-        RunAlgorithmicGeneration(startPosition);
-        tilemapVisualizer.PaintFloorTiles(floorPositions);
-        WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
+    //private void RunProceduralGenerationFloor(Vector2Int startPosition)
+    // {
+        // RunAlgorithmicGeneration(startPosition);
+        // tilemapVisualizer.PaintFloorTiles(floorPositions);
+        // tilemapVisualizer.PaintFloorDecor(floorPositions);
+        // WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
 
         // create teleporter
         // FloorTransitionGenerator floorTransitionGenerator = new FloorTransitionGenerator();
@@ -284,7 +323,7 @@ public class MapRoomGenerator : AbstractDungeonGenerator
         // generate loot chest
         // LootChestGenerator lootChestGenerator = new LootChestGenerator();
         // lootChestGenerator.Generate(floorPositions, chestPrefab);
-    }
+    // }
 
     protected void RunAlgorithmicGeneration(Vector2Int position)
     {

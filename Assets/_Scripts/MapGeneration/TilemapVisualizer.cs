@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,78 +9,126 @@ using Random = UnityEngine.Random;
 public class TilemapVisualizer : MonoBehaviour
 {
     [SerializeField]
-    private Tilemap floorTilemap, wallTilemap, torchTilemap;
+    private TileBase[] floorTiles;
     [SerializeField]
-    private TileBase floorTile0, floorTile1_1, floorTile1_2, floorTile1_3, floorTile2_1, floorTile2_2, 
-        floorTile3, floorTile4, floorTile5, 
-        wallTop, wallSideRight, wallSideLeft, wallBottom, wallFull, 
+    private TileBase[] floorOutskirtsTiles;    
+    [SerializeField]
+    private TileBase[] floorDecor;
+    [SerializeField]
+    private TileBase[] floorDecorShadows;
+    [SerializeField]
+    private Tilemap floorTilemap, floorDecorTilemap, floorDecorShadowTilemap, wallTilemap, torchTilemap;
+    [SerializeField]
+    private TileBase wallTop, wallSideRight, wallSideLeft, wallBottom, wallFull, 
         wallInnerCornerDownLeft, wallInnerCornerDownRight,
         wallDiagonalCornerDownLeft, wallDiagonalCornerDownRight,
         wallDiagonalCornerUpRight, wallDiagonalCornerUpLeft,
-        ladderUpTile, ladderDownTile, torchLeftTile, torchTopTile, torchRightTile;
+        wallTopLeftRight,
+        torchLeftTile, torchTopTile, torchRightTile;
 
     public Tilemap getTorchTilemap() {
         return torchTilemap;
     }
 
+    public void ShiftFloorTilemapDown() {
+        floorTilemap.transform.position -= new Vector3(0, 0.5f, 0); 
+    }
+
+    public void PaintFloorOutskirtsTiles(int[,] mapLayout, int mapSize, int roomSize) {
+
+        for (int i = 0; i < mapSize; i++)
+        {
+            for (int j = 0; j < mapSize; j++)
+            {
+                if (mapLayout[i, j] == 1)
+                {
+                    int x = i * 2 * roomSize;
+                    int y = j * 2 * roomSize;
+                    for (int dx = -1*roomSize; dx < roomSize; dx++) {
+                        for (int dy = -1*roomSize; dy < roomSize; dy++) {
+                            int idx = Random.Range(0, floorOutskirtsTiles.Length);
+                            PaintSingleTile(floorTilemap, floorOutskirtsTiles[idx], new Vector2Int(x + dx, y + dy));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public void PaintFloorTiles(IEnumerable<Vector2Int> floorPositionsEnumerable) {
-        TileBase[] floorTilesAlternate_1 = new TileBase[] {floorTile1_1, floorTile1_2, floorTile1_3};
-        TileBase[] floorTilesAlternate_2 = new TileBase[] {floorTile2_1, floorTile2_2};
-        TileBase[] floorTilesAlternate_3 = new TileBase[] {floorTile3};
-        TileBase[] floorTilesAlternate_4 = new TileBase[] {floorTile4};
-        TileBase[] floorTilesAlternate_5 = new TileBase[] {floorTile5};
 
         HashSet<Vector2Int> floorPositions = new HashSet<Vector2Int>();
         floorPositions.UnionWith(floorPositionsEnumerable);
 
         foreach (var position in floorPositions) {
-            PaintSingleTile(floorTilemap, floorTile0, position);
+            int idx = Random.Range(0, floorTiles.Length);
+            PaintSingleTile(floorTilemap, floorTiles[idx], position);
         }
+    }
 
-        int state = 0;
-        HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
-        foreach (var position in floorPositions) {
-            if (visited.Contains(position)) {continue;}
-            state = Random.Range(0, 100);
+    public void PaintFloorDecor(IEnumerable<Vector2Int> floorPositionsEnumerable)
+    {
+        HashSet<Vector2Int> floorPositions = new HashSet<Vector2Int>();
+        floorPositions.UnionWith(floorPositionsEnumerable);
 
-            if (state == 1) {
-                PaintSingleTile(floorTilemap, floorTile1_1, position);
-                visited.Add(position);
+        foreach (var position in floorPositions)
+        {
+            if (Random.Range(0, 100) < 5)
+            {
+                if (!floorPositions.Contains(new Vector2Int(position.x, position.y + 1))) continue;
+                if (!floorPositions.Contains(new Vector2Int(position.x + 1, position.y))) continue;
 
-                Vector2Int nextTile = position + new Vector2Int(1, 0);
-                if (floorPositions.Contains(nextTile)) {
-                    PaintSingleTile(floorTilemap, floorTile1_2, nextTile);
-                    visited.Add(nextTile);
+                int idx = Random.Range(3, floorDecor.Length);
+                PaintSingleTile(floorDecorTilemap, floorDecor[idx], position);
 
-                    Vector2Int nextNextTile = position + new Vector2Int(2, 0);
-                    if (floorPositions.Contains(nextNextTile)) {
-                        PaintSingleTile(floorTilemap, floorTile1_3, nextNextTile);
-                        visited.Add(nextNextTile);
-                    }
-                
+                if (idx < floorDecorShadows.Length)
+                {
+                    PaintSingleTileFloat(
+                        floorDecorShadowTilemap, 
+                        floorDecorShadows[idx], 
+                        new Vector3(position.x, position.y - 0.001f, 0)
+                        );
                 }
-                
-            } else if (state == 2) {
-                PaintSingleTile(floorTilemap, floorTile2_1, position);
-                visited.Add(position);
-
-                Vector2Int nextTile = position + new Vector2Int(1, 0);
-                if (floorPositions.Contains(nextTile)) {
-                    PaintSingleTile(floorTilemap, floorTile2_2, nextTile);
-                    visited.Add(nextTile);
-                }
-                
-            } else if (state <= 6) {
-                PaintSingleTile(floorTilemap, floorTile3, position);
-                visited.Add(position);
-            } else if (state <= 9) {
-                PaintSingleTile(floorTilemap, floorTile4, position);
-                visited.Add(position);
-            } else if (state == 10) {
-                PaintSingleTile(floorTilemap, floorTile5, position);
-                visited.Add(position);
             }
-            
+        }
+    }
+
+    public void PaintOuterDecor(IEnumerable<Vector2Int> floorPositionsEnumerable)
+    {
+        HashSet<Vector2Int> floorPositions = new HashSet<Vector2Int>();
+        floorPositions.UnionWith(floorPositionsEnumerable);
+
+        foreach (var position in floorPositions)
+        {
+            if (Random.Range(0, 100) < 5)
+            {
+                var newLoc = new Vector2Int(position.x + 5, position.y);
+                PaintOuterDecorHelper(floorPositions, newLoc);
+
+                newLoc = new Vector2Int(position.x - 5, position.y);
+                PaintOuterDecorHelper(floorPositions, newLoc);
+                
+            }
+        }
+    }
+
+    public void PaintOuterDecorHelper(HashSet<Vector2Int> floorPositions, Vector2Int newLoc) {
+        if (!floorPositions.Contains(newLoc)) {
+            foreach ( var direction in Direction2D.cardinalDirectionList ) {
+                if (floorPositions.Contains(newLoc + direction)) return;
+            }
+
+            int idx = Random.Range(0, 3);
+            PaintSingleTile(floorDecorTilemap, floorDecor[idx], newLoc);
+
+            if (idx < floorDecorShadows.Length)
+            {
+                PaintSingleTile(
+                    floorDecorShadowTilemap,
+                    floorDecorShadows[idx],
+                    newLoc
+                    );
+            }
         }
     }
 
@@ -106,6 +155,9 @@ public class TilemapVisualizer : MonoBehaviour
         TileBase tile = null;
         if (WallTypeHelper.wallTop.Contains(typeAsInt)) {
             tile = wallTop;
+            if (WallTypeHelper.wallTopException.Contains(typeAsInt)) {
+                PaintSingleTile(wallTilemap, wallTopLeftRight, new Vector2Int(position.x, position.y + 1));
+            }
         } else if (WallTypeHelper.wallSideRight.Contains(typeAsInt)) {
             tile = wallSideRight;
         } else if (WallTypeHelper.wallSideLeft.Contains(typeAsInt)) {
@@ -125,6 +177,8 @@ public class TilemapVisualizer : MonoBehaviour
         TileBase tile = null;
         if (WallTypeHelper.wallInnerCornerDownLeft.Contains(typeAsInt)) {
             tile = wallInnerCornerDownLeft;
+        } else if (WallTypeHelper.wallTopLeftRight.Contains(typeAsInt)) {
+            tile = wallTopLeftRight;
         } else if (WallTypeHelper.wallInnerCornerDownRight.Contains(typeAsInt)) {
             tile = wallInnerCornerDownRight;
         } else if (WallTypeHelper.wallDiagonalCornerDownLeft.Contains(typeAsInt)) {
@@ -150,9 +204,16 @@ public class TilemapVisualizer : MonoBehaviour
         tilemap.SetTile(tilePosition, tile);
     }
 
+    private void PaintSingleTileFloat(Tilemap tilemap, TileBase tile, Vector3 position)
+    {
+        var tilePosition = tilemap.WorldToCell(position);
+        tilemap.SetTile(tilePosition, tile);
+    }
 
     public void Clear() {
         floorTilemap.ClearAllTiles();
+        floorDecorTilemap.ClearAllTiles();
+        floorDecorShadowTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
         torchTilemap.ClearAllTiles();
 
@@ -161,7 +222,7 @@ public class TilemapVisualizer : MonoBehaviour
             GameObject.DestroyImmediate( torchTilemap.transform.GetChild( i ).gameObject );
         }
 
-        string[] parents = new string[] {"ChestParent", "LootDropParent", "TeleporterParent"};
+        string[] parents = new string[] {"ChestParent", "LootDropParent", "RoomExitParent"};
 
         foreach (string parent in parents) {
             GameObject PARENT_OBJECT = GameObject.Find(parent);

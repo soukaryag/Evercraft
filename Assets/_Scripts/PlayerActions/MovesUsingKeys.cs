@@ -28,6 +28,7 @@ public class MovesUsingKeys : MonoBehaviour
     private int roomMiddle = 20;
 
     private void Awake() {
+        Physics2D.queriesHitTriggers = false;
         view = GetComponent<PhotonView>();
         animator = GetComponent<Animator>();
 
@@ -62,15 +63,9 @@ public class MovesUsingKeys : MonoBehaviour
             animator.SetFloat("Vertical", 0.0f);
             animator.SetFloat("Speed", moveSpeed);
             ps.Play();
-        } else {
+        }
 
-            if (Input.GetKey(KeyCode.Q))
-            {
-                yRoomIndex = Mathf.RoundToInt(transform.position.y / roomSize);
-                xRoomIndex = Mathf.RoundToInt(transform.position.x / roomSize);
-            }
-            
-
+        if (view.IsMine) {
             movement.x = Input.GetAxisRaw("Horizontal");
             movement.y = Input.GetAxisRaw("Vertical");
 
@@ -111,35 +106,33 @@ public class MovesUsingKeys : MonoBehaviour
                 dashCooldown--;
             }
 
-            if (Input.GetKey(KeyCode.Space) && dash && movement.sqrMagnitude > 0) {
-                Transform dashEffectTransform = Instantiate(pfDashEffect, transform.position, Quaternion.identity);
+            if (Input.GetKey(KeyCode.Space) && dash && movement.sqrMagnitude != 0) {
+                // Transform dashEffectTransform = Instantiate(pfDashEffect, transform.position, Quaternion.identity);
 
                 float dashDistance = MaxDashDistance(movement, dashSpeed);
-                dashEffectTransform.transform.position = new Vector3(
-                    dashEffectTransform.transform.position.x + movement.x/2, 
-                    dashEffectTransform.transform.position.y + movement.y/2,
-                    dashEffectTransform.transform.position.z
-                );
+                // dashEffectTransform.transform.position = new Vector3(
+                //     dashEffectTransform.transform.position.x + movement.x/2, 
+                //     dashEffectTransform.transform.position.y + movement.y/2,
+                //     dashEffectTransform.transform.position.z
+                // );
 
-                dashEffectTransform.eulerAngles = new Vector3(0, 0, GetAngleFromVectorFloat(movement));
-                dashEffectTransform.localScale = new Vector3(dashDistance, 1f, 1f);
+                // dashEffectTransform.eulerAngles = new Vector3(0, 0, GetAngleFromVectorFloat(movement));
+                // dashEffectTransform.localScale = new Vector3(dashDistance, 1f, 1f);
 
                 transform.position = transform.position + (Vector3)(movement.normalized * dashDistance);
                 dashCooldown = 30;
                 dash = false;
             } else {
                 transform.position = transform.position + (Vector3)(movement.normalized * moveSpeed);
-                PlayerCamera.transform.position = new Vector3(
-                    Mathf.Clamp(transform.position.x + movement.x * moveSpeed, (xRoomIndex * roomSize) - roomMiddle, (xRoomIndex * roomSize) + roomMiddle),
-                    Mathf.Clamp(transform.position.y + movement.y * moveSpeed, (yRoomIndex * roomSize) - roomMiddle, (yRoomIndex * roomSize) + roomMiddle), 
-                    PlayerCamera.transform.position.z
-                    );
             }
         }
     }
 
     private float MaxDashDistance(Vector2 dir, float distance) {
         RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance);
+        if (hit.distance < 0.1f) {
+            hit = Physics2D.Raycast(transform.position + new Vector3(0, 0.1f, 0), dir, distance);
+        }
 
         if (hit.collider != null) {
             return Mathf.Max(0.0f, Mathf.Min(dashSpeed, hit.distance - 1.0f));

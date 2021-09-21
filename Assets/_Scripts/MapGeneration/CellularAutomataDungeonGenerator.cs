@@ -15,7 +15,7 @@ public static class CellularAutomataDungeonGenerator
     public static bool useRandomSeed = true;
 
     public static int randomFillPercent = 48;
-    public static int centerSafeSize = 2;
+    public static int centerSafeSize = 3;
 
     static int[,] map;
 

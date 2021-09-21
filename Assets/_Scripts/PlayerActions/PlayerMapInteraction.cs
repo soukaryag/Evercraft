@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,10 +12,9 @@ public class PlayerMapInteraction : MonoBehaviour
     [SerializeField]
     Text interactiveText;
 
-    bool isOnTeleporter = false;
-
-    [SerializeField]
-    int currentFloor = 0;
+    int roomTransferCooldown = 0;
+    private int roomSize = 30;
+    private int buffer = 3;
     PhotonView view;
 
     private CorridorFirstDungeonGenerator corridorFirstDungeonGenerator;
@@ -29,12 +29,8 @@ public class PlayerMapInteraction : MonoBehaviour
 
     void Update()
     {
-        if (view.IsMine && isOnTeleporter && Input.GetKey(KeyCode.E))
-        {
-            currentFloor++;
-            // this.corridorFirstDungeonGenerator.CreateNextFloor();
-            this.transform.position = new Vector3(0f, 0f, 0f);
-            isOnTeleporter = false;
+        if (roomTransferCooldown > 0) {
+            roomTransferCooldown--;
         }
     }
 
@@ -42,14 +38,26 @@ public class PlayerMapInteraction : MonoBehaviour
     {
         if (view.IsMine)
         {
-            if (collision.gameObject.name == "Teleporter(Clone)")
+            if (collision.gameObject.name.Contains("Exit") && roomTransferCooldown == 0)
             {
-                interactiveText.text = "Press E to Ascend";
-                isOnTeleporter = true;
-            }
-            else
-            {
+                string[] exitParams = collision.gameObject.name.Split(',');
+                int yRoomIndex = Mathf.RoundToInt(Int32.Parse(exitParams[2]) / roomSize);
+                int xRoomIndex = Mathf.RoundToInt(Int32.Parse(exitParams[1]) / roomSize);
+
+                if (exitParams[3] == "up") {
+                    transform.position = transform.position + (Vector3)(new Vector2(0, roomSize + buffer));
+                } else if (exitParams[3] == "down") {
+                    transform.position = transform.position + (Vector3)(new Vector2(0, -1*(roomSize + buffer)));
+                } else if (exitParams[3] == "right") {
+                    transform.position = transform.position + (Vector3)(new Vector2(roomSize + buffer, 0));
+                } else if (exitParams[3] == "left") {
+                    transform.position = transform.position + (Vector3)(new Vector2(-1*(roomSize + buffer), 0));
+                }
+
+                roomTransferCooldown = 30;
                 return;
+            } else if (collision.gameObject.name.Contains("Shrub")) {
+                GameObject.Destroy(collision.gameObject);
             }
 
             interactiveText.enabled = true;
@@ -61,7 +69,6 @@ public class PlayerMapInteraction : MonoBehaviour
         if (view.IsMine)
         {
             interactiveText.enabled = false;
-            isOnTeleporter = false;
         }
     }
 
