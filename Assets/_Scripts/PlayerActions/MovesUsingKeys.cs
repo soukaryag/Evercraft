@@ -82,9 +82,15 @@ public class MovesUsingKeys : MonoBehaviour
             }
 
             if (movement.sqrMagnitude == 0) {
-                ps.Stop();
+                if (ps != null) { //From Austin: this kept throwing errors
+                    ps.Stop();
+                }
+                
             } else {
-                ps.Play();
+                if (ps != null) { //Also
+                    ps.Play();
+                }
+                
             }
 
             animator.SetFloat("Horizontal", movement.x);
