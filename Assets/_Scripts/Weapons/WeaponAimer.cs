@@ -14,29 +14,37 @@ public class WeaponAimer : MonoBehaviour
     [SerializeField]
     private Camera playerCamera;
 
+    //private bool weapon2Playing = false;
+    private float weaponCooldown = 1f;
+    private float weaponTimer = 0.5f;
+
     // Start is called before the first frame update
     void Start()
     {
-        weapon2.Pause();
+        weapon2.Stop();
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.Log("Update..." + weaponTimer);
         if (Input.GetMouseButton(0)) {
-            if (!weapon2.isPlaying) {
-                //Debug.Log("enabled weapon");
-                weapon2.Play();
-            }
             mousePos = playerCamera.ScreenToWorldPoint(Input.mousePosition);
             //Debug.Log("raw mouse pos is " + mousePos);
             lookAt(mousePos);
+            if (weaponTimer >= weaponCooldown) {
+                weaponTimer = 0;
+                weapon2.Emit(1);
+            }
+            
         }
+        weaponTimer += Time.deltaTime;
 
-        if (Input.GetMouseButtonUp(0)) {
-            //Debug.Log("disabled weapon");
-            weapon2.Stop();
-        }
+        // if (Input.GetMouseButtonUp(0)) {
+        //     Debug.Log("disabled weapon");
+        //     weapon2.Stop();
+        //     weapon2Playing = false;
+        // }
 
 
 
