@@ -248,7 +248,7 @@ PrefabInstance:
     - target: {fileID: 1420471839428939514, guid: 8818c0cbf1ff48549a49e5624d9c6369, type: 3}
       propertyPath: weapon1
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 729268017}
     - target: {fileID: 1420471839428939514, guid: 8818c0cbf1ff48549a49e5624d9c6369, type: 3}
       propertyPath: weapon2
       value: 
@@ -751,6 +751,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2603299585355613652, guid: e46aa1eb07b684ac89205acbd0552dcc, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4342562703421989686, guid: e46aa1eb07b684ac89205acbd0552dcc, type: 3}
+      propertyPath: playOnAwake
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4342562703421989686, guid: e46aa1eb07b684ac89205acbd0552dcc, type: 3}
@@ -1986,6 +1990,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!198 &729268017 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 6030377511950165066, guid: b165594854f2f4a1caab4d503b603cc5, type: 3}
+  m_PrefabInstance: {fileID: 1625598934}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &834591216
 GameObject:
   m_ObjectHideFlags: 0
@@ -20593,6 +20602,14 @@ PrefabInstance:
     - target: {fileID: 2943303159330295945, guid: b165594854f2f4a1caab4d503b603cc5, type: 3}
       propertyPath: m_Name
       value: Aura_Blue_Energy_Sphere
+      objectReference: {fileID: 0}
+    - target: {fileID: 6030377511950165066, guid: b165594854f2f4a1caab4d503b603cc5, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6030377511950165066, guid: b165594854f2f4a1caab4d503b603cc5, type: 3}
+      propertyPath: prewarm
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6030377511950165066, guid: b165594854f2f4a1caab4d503b603cc5, type: 3}
       propertyPath: lengthInSec
