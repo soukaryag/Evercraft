@@ -5,8 +5,11 @@ using UnityEngine;
 public abstract class AISM : MonoBehaviour
 {
     private AI defaultAI;
-    private List<AI> AIs;
+    protected AI currentAI;
+    protected List<AI> AIs;
     private Animator animator;
+
+    private AnimatorController animatorController;
     private Transform tfm;
     // Start is called before the first frame update
     public virtual void Start()
@@ -14,6 +17,7 @@ public abstract class AISM : MonoBehaviour
         AIs = new List<AI>();
         tfm = transform.parent;
         animator = transform.parent.gameObject.GetComponentInChildren<Animator>();
+        animatorController = transform.parent.gameObject.GetComponentInChildren<SlimeAnimations>();
         AI[] ais = GetComponentsInChildren<AI>();
         FlipWhenMoveLeft flipper = GetComponent<FlipWhenMoveLeft>();
         flipper.setAnimator(animator);
@@ -22,10 +26,12 @@ public abstract class AISM : MonoBehaviour
             //Add it to our list, and give it access to the animater and transform
             el.setAnimator(animator);
             el.setTransform(tfm);
+            el.setAnimatorController(animatorController);
             AIs.Add(el);
         }
         defaultAI = AIs[0];
-        defaultAI.enabled = true;
+        currentAI = AIs[0];
+        currentAI.enabled = true;
     }
 
     // Update is called once per frame

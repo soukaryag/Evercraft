@@ -10,6 +10,7 @@ public class SlimeAIIdle : AI
     private int actionFrames = 270; //how many frames the action should run for
     // Start is called before the first frame update
     //private Random rng;
+    private IEnumerator walk;
     public override void Start()
     {
         timer = 0f;
@@ -23,30 +24,34 @@ public class SlimeAIIdle : AI
             float directionX = (float)(Random.value - 0.5);
             float directionY = (float)(Random.value - 0.5);
             Vector2 randomDirection = (new Vector2(directionX, directionY)).normalized;
-            Debug.Log("Initiating the coroutine (speed != 0)");
             getAnimator().SetFloat("SpeedX", randomDirection.x);
             getAnimator().SetFloat("SpeedY", randomDirection.y);
+            getAnimator().SetBool("Moving", true);
             float distance = 2.0f;
             timer = 0f;
-            StartCoroutine(randomWalk(randomDirection, distance));
+            walk = slimeRandomWalk(randomDirection, distance);
+            StartCoroutine(walk);
         }
     }
 
-    IEnumerator randomWalk(Vector2 direction, float distance) {
+    IEnumerator slimeRandomWalk(Vector2 direction, float distance) {
+        Debug.Log("in the walk");
         int i = 0;
         while (i < actionFrames) {
-            Vector3 position = getTransform().position;
-            //Debug.Log(position);
-            position = new Vector3((direction.x * distance / actionFrames), (direction.y * distance / actionFrames), 0);
-            modifyPosition(position);
-            //position.y = position.y + (direction.normalized.y * distance / actionFrames);
+            Vector3 increment = new Vector3((direction.x * distance / actionFrames), (direction.y * distance / actionFrames), 0);
+            addVectorToPosition(increment);
             i++;
             yield return null;
         }
-        Debug.Log("Setting the speed to 0 now");
-        getAnimator().SetFloat("SpeedX", 0);
-        getAnimator().SetFloat("SpeedY", 0);
+        getAnimator().SetBool("Moving", false);
+    }
+
+    public override void shutDown() {
+        Debug.Log(walk);
+        if (walk != null) {
+            StopCoroutine(walk);
+        }
         
-        
+        getAnimator().SetBool("Moving", false);
     }
 }
