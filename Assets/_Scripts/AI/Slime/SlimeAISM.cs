@@ -39,14 +39,6 @@ public class SlimeAISM : AISM
         }
     }
 
-    /* Transition to a new AI, disabling the current one */
-    void transitionTo(AI newAI) {
-        currentAI.enabled = false;
-        newAI.enabled = true;
-        currentAI = newAI;
-        transform.parent.localScale = new Vector2(1f, 1f);
-    }
-
     /* Transition to enraged upon spotting a player. Set that player as the AI's target */
     void OnTriggerEnter2D(Collider2D other) {
         if (enragedAI != currentAI) {

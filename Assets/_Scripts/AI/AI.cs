@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public abstract class AI : MonoBehaviour
 {
@@ -9,6 +10,9 @@ public abstract class AI : MonoBehaviour
     [SerializeField]
     private Transform target;
     private AnimatorController ac;
+    protected AISM manager;
+    [SerializeField]
+    private Image emoji;
 
     Transform tfm;
     // Start is called before the first frame update
@@ -42,9 +46,9 @@ public abstract class AI : MonoBehaviour
     }
     
     public void addVectorToPosition(Vector3 addend) {
-        int direction = convertVectorToDirection(addend);
+        //int direction = convertVectorToDirection(addend);
         tfm.position += addend;
-        getAnimator().SetInteger("MoveDirection", direction);
+        //getAnimator().SetInteger("MoveDirection", direction);
     }
 
     public Vector3 getPosition() {
@@ -57,9 +61,15 @@ public abstract class AI : MonoBehaviour
 
     /*
     For switching out of this state */
-    public abstract void shutDown();
+    public virtual void shutDown() {
+        emoji.enabled = false;
+    }
 
-    static int convertVectorToDirection(Vector3 vector) {
+    public virtual void startUp() {
+        emoji.enabled = true;
+    }
+
+    protected static int convertVectorToDirection(Vector3 vector) {
         float angle = Mathf.Atan2(vector.y, vector.x);
         int quadrant = (int)Mathf.Round( 4 * angle / (2*Mathf.PI) + 4 ) % 4;
         return quadrant;
@@ -69,8 +79,18 @@ public abstract class AI : MonoBehaviour
         this.ac = ac;
     }
 
-    public AnimatorController GetAnimatorController() {
+    public AnimatorController getAnimatorController() {
         return this.ac;
+    }
+
+    public void setManager(AISM manager) {
+        this.manager = manager;
+    }
+
+    public abstract void evaluate();
+
+    public Image getEmoji() {
+        return emoji;
     }
 
     // Update is called once per frame

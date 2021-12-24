@@ -2,17 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimationEventsSlime : MonoBehaviour
+public class SlimeAnimationEvents : MonoBehaviour
 {
     private ParticleSystem weapon1;
     private Transform tfm;
     private SlimeAIEnraged enragedAI;
+    private SlimeAISM manager;
     // Start is called before the first frame update
     void Start()
     {
         tfm = transform.parent;
         weapon1 = transform.parent.gameObject.GetComponentInChildren<SlimeAISM>().getWeapon1();
         enragedAI = transform.parent.gameObject.GetComponentInChildren<SlimeAIEnraged>();
+        manager = transform.parent.gameObject.GetComponentInChildren<SlimeAISM>();
     }
 
     // Update is called once per frame
@@ -22,15 +24,16 @@ public class AnimationEventsSlime : MonoBehaviour
     }
 
     public void fireWeapon1() {
-        Debug.Log("FIRING shot");
         weapon1.Emit(1);
     }
 
     public void mirror() {
+        Debug.Log("mirror called");
         tfm.localScale = new Vector2(-1f, 1f);
     }
 
     public void resetMirror() {
+        Debug.Log("reset mirror called");
         tfm.localScale = new Vector2(1f, 1f);
     }
 
@@ -46,8 +49,8 @@ public class AnimationEventsSlime : MonoBehaviour
         enragedAI.lockOnAndAttack();
     }
 
-    public void attackEnded() {
-        enragedAI.attackEnded();
+    public void toggleLock() {
+        manager.toggleLock();
     }
 
     public void doNothing() {

@@ -6,10 +6,8 @@ using Random=UnityEngine.Random;
 public class SlimeAIIdle : AI
 {
     private float timer;
-    private float actionTime = 4.0f;
+    private float actionTime = 2.0f;
     private int actionFrames = 270; //how many frames the action should run for
-    // Start is called before the first frame update
-    //private Random rng;
     private IEnumerator walk;
     public override void Start()
     {
@@ -17,16 +15,28 @@ public class SlimeAIIdle : AI
     }
 
     // Update is called once per frame
-    void FixedUpdate() 
+    public override void Update() 
     {
+        evaluate();
+    }
+
+    public override void evaluate() {
+        if (manager.isLocked()) {
+            return;
+        }
         timer += Time.deltaTime;
         if (timer >= actionTime) {
             float directionX = (float)(Random.value - 0.5);
             float directionY = (float)(Random.value - 0.5);
             Vector2 randomDirection = (new Vector2(directionX, directionY)).normalized;
-            getAnimator().SetFloat("SpeedX", randomDirection.x);
-            getAnimator().SetFloat("SpeedY", randomDirection.y);
-            getAnimator().SetBool("Moving", true);
+            int quadrant = convertVectorToDirection(randomDirection);
+            switch(quadrant) {
+                case 0: getAnimatorController().changeAnimation("Slime_move_right"); break;
+                case 1: getAnimatorController().changeAnimation("Slime_move_up"); break;
+                case 2: getAnimatorController().changeAnimation("Slime_move_left"); break;
+                case 3: getAnimatorController().changeAnimation("Slime_move_down"); break;
+                default: getAnimatorController().changeAnimation("Slime_idle"); break;
+            }
             float distance = 2.0f;
             timer = 0f;
             walk = slimeRandomWalk(randomDirection, distance);
@@ -35,7 +45,6 @@ public class SlimeAIIdle : AI
     }
 
     IEnumerator slimeRandomWalk(Vector2 direction, float distance) {
-        Debug.Log("in the walk");
         int i = 0;
         while (i < actionFrames) {
             Vector3 increment = new Vector3((direction.x * distance / actionFrames), (direction.y * distance / actionFrames), 0);
@@ -43,15 +52,20 @@ public class SlimeAIIdle : AI
             i++;
             yield return null;
         }
-        getAnimator().SetBool("Moving", false);
+        getAnimatorController().changeAnimation("Slime_idle");
     }
 
     public override void shutDown() {
-        Debug.Log(walk);
+        base.shutDown();
         if (walk != null) {
             StopCoroutine(walk);
         }
-        
-        getAnimator().SetBool("Moving", false);
+    }
+
+    public override void startUp()
+    {
+        base.startUp();
+        getAnimatorController().changeAnimation("Slime_idle");
+        timer = 0f;
     }
 }

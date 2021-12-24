@@ -5,9 +5,6 @@ using Pathfinding;
 
 public class SlimeAIEnraged : AI
 {
-    private float actionTimer;
-    private float actionTime = 0.7f;
-
     private ParticleSystem weapon1;
     private ParticleSystem weapon2;
 
@@ -17,57 +14,57 @@ public class SlimeAIEnraged : AI
     bool reachedEndOfPath = false;
 
     Seeker seeker;
-
-    bool attacking = false;
     
     // Start is called before the first frame update
     public override void Start()
     {
         seeker = GetComponentInChildren<Seeker>();
-        InvokeRepeating("UpdatePath", 0f, .5f);
+        InvokeRepeating("UpdatePath", 0f, .5f); 
+        /*In the future, change this to update after a walk animation (?) */
+
     }
 
     public override void Update() 
     {
+        if (manager.isLocked()) {
+            return;
+        }
+        evaluate();
+    }
+
+    public override void evaluate() {
         Vector2 distanceToTarget = getTarget().position - transform.position;
         if (distanceToTarget.magnitude < 4.0f) {
-            getAnimator().SetBool("Moving", false);
-            getAnimator().SetBool("Attacking", true);
+            lockOnAndAttack();
         }
         else { //distance is between 4 and 6 (or whatever upper bound set in AISM)
             //run towards player
-            if (!attacking) { //If the slime isn't invested in an attack animation, allow it to move
-                getAnimator().SetBool("Moving", true);
-                getAnimator().SetBool("Attacking", false);
-                
-                if (path == null) {
-                    return;
-                }
-                if (currentWaypoint >= path.vectorPath.Count) {
-                    reachedEndOfPath = true;
-                    return;
-                }
-                else {
-                    reachedEndOfPath = false;
-                }
-                //Debug.Log((Vector2)path.vectorPath[currentWaypoint]);
-
-                Vector2 direction = ((Vector2)path.vectorPath[currentWaypoint] - (Vector2)getTransform().position).normalized;
-                if (direction.magnitude != 0) {
-                    Debug.Log("Setting the SpeedX to " + direction.x + " and the speedy to " + direction.y);
-                    Debug.Log("Because... the current waypoint is" + path.vectorPath[currentWaypoint]);
-                    addVectorToPosition(new Vector3(direction.x * Time.deltaTime, direction.y * Time.deltaTime, 0));
-                }
-                
-                float distance = Vector2.Distance(getTransform().position, path.vectorPath[currentWaypoint]);
-                //Debug.Log("distance is " + distance);
-                if (distance < nextWaypointDistance) {
-                    
-                    currentWaypoint++;
-                }
+            if (path == null) {
+                return;
             }
-            
-            
+            if (currentWaypoint >= path.vectorPath.Count) {
+                reachedEndOfPath = true;
+                return;
+            }
+            else {
+                reachedEndOfPath = false;
+            }
+            Vector2 direction = ((Vector2)path.vectorPath[currentWaypoint] - (Vector2)getTransform().position).normalized;
+            if (direction.magnitude != 0) {
+                int quadrant = convertVectorToDirection((Vector3)direction);
+                switch(quadrant) {
+                    case 0: getAnimatorController().changeAnimation("Slime_move_right"); break;
+                    case 1: getAnimatorController().changeAnimation("Slime_move_up"); break;
+                    case 2: getAnimatorController().changeAnimation("Slime_move_left"); break;
+                    case 3: getAnimatorController().changeAnimation("Slime_move_down"); break;
+                    default: getAnimatorController().changeAnimation("Slime_idle"); break;
+                }
+                addVectorToPosition(new Vector3(direction.x * Time.deltaTime, direction.y * Time.deltaTime, 0));
+            }
+            float distance = Vector2.Distance(getTransform().position, path.vectorPath[currentWaypoint]);
+            if (distance < nextWaypointDistance) {
+                currentWaypoint++;
+            }
         }
     }
 
@@ -75,7 +72,6 @@ public class SlimeAIEnraged : AI
         if (seeker.IsDone()) {
             seeker.StartPath(getTransform().position, getTarget().position, OnPathComplete);
         }
-        
     }
 
     void OnPathComplete(Path p) {
@@ -85,14 +81,9 @@ public class SlimeAIEnraged : AI
         }
     }
 
-    // private void setSeekerTarget(Transform target) {
-    //     seeker.
-    // }
-
     public void lockOnAndAttack() {
         lockOn();
         animateAttack();
-        attacking = true;
     }
 
     private void lockOn() {
@@ -102,6 +93,7 @@ public class SlimeAIEnraged : AI
     }
 
     private void animateAttack() {
+        //Debug.Log("in animate attack");
         //Set up the animator for this attack with the intended attack direction
         /* Map directions to a number: N: 0 E: 1 S: 2 W: 3 */
         /* Also remember the X component is ACTUALLY weapon1.transform.up.y
@@ -109,29 +101,25 @@ public class SlimeAIEnraged : AI
             because the system is pre-rotated 90 degrees. Don't question! */
         if (-weapon1.transform.up.x > 0 //if NORTH
             && Mathf.Abs(-weapon1.transform.up.x) > Mathf.Abs(weapon1.transform.up.y)) {
-                getAnimator().SetInteger("AttackDirection", 0);
+                getAnimatorController().changeAnimation("Slime_attack_up");
         }
         else if (-weapon1.transform.up.x < 0 //if SOUTH
             && Mathf.Abs(-weapon1.transform.up.x) > Mathf.Abs(weapon1.transform.up.y)) {
-                getAnimator().SetInteger("AttackDirection", 2);
+                getAnimatorController().changeAnimation("Slime_attack_down");
         }
         else if (weapon1.transform.up.y > 0 //if EAST
             && Mathf.Abs(weapon1.transform.up.y) > -weapon1.transform.up.x) {
-                getAnimator().SetInteger("AttackDirection", 1);
+                getAnimatorController().changeAnimation("Slime_attack_right");
         }
         else if (weapon1.transform.up.y < 0 //if WEST
             && Mathf.Abs(weapon1.transform.up.y) > -weapon1.transform.up.x) {
-                weapon1.transform.eulerAngles = new Vector3(0, 0, -weapon1.transform.eulerAngles.z);
-                getAnimator().SetInteger("AttackDirection", 3);
+                //weapon1.transform.eulerAngles = new Vector3(0, 0, -weapon1.transform.eulerAngles.z);
+                getAnimatorController().changeAnimation("Slime_attack_left");
         }
         else {
-            getAnimator().SetInteger("AttackDirection", -1);
+            getAnimatorController().changeAnimation("Slime_idle");
         }
-        getAnimator().SetBool("Attacking", true);
-    }
-
-    public void attackEnded() {
-        attacking = false;
+        manager.toggleLock();
     }
 
     public void setWeapon1(ParticleSystem w1) {
@@ -146,15 +134,14 @@ public class SlimeAIEnraged : AI
         weapon1.Emit(1);
     }
 
-    void OnEnable() {
-
-    }
-
-    void OnDisable() {
-        
+    public override void startUp()
+    {
+        base.startUp();
+        manager.getEmojiBackground().color = new Color32(255, 0, 0, 255);
     }
 
     public override void shutDown() {
-        getAnimator().SetBool("Attacking", false);
+        base.shutDown();
+        manager.getEmojiBackground().color = new Color32(200, 200, 200, 255);
     }
 }
