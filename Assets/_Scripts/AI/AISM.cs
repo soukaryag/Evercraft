@@ -47,10 +47,12 @@ public abstract class AISM : MonoBehaviour
 
     /* Transition to a new AI, disabling the current one */
     protected void transitionTo(AI newAI) {
-        currentAI.enabled = false;
         currentAI.shutDown();
+        currentAI.enabled = false;
+
         newAI.enabled = true;
         newAI.startUp();
+        
         currentAI = newAI;
         transform.parent.localScale = new Vector2(1f, 1f);
     }
