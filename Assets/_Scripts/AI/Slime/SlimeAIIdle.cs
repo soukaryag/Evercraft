@@ -5,8 +5,8 @@ using Random=UnityEngine.Random;
 
 public class SlimeAIIdle : AI
 {
-    private float timer;
-    private float actionTime = 2.0f;
+    private float timer = 2f;
+    private float actionTime = 4.0f;
     private int actionFrames = 270; //how many frames the action should run for
     private IEnumerator walk;
     public override void Start()
@@ -35,7 +35,7 @@ public class SlimeAIIdle : AI
                 case 1: getAnimatorController().changeAnimation("Slime_move_up"); break;
                 case 2: getAnimatorController().changeAnimation("Slime_move_left"); break;
                 case 3: getAnimatorController().changeAnimation("Slime_move_down"); break;
-                default: getAnimatorController().changeAnimation("Slime_idle"); break;
+                default: Debug.Log("Default: changing to tidle"); getAnimatorController().changeAnimation("Slime_idle"); break;
             }
             float distance = 2.0f;
             timer = 0f;
@@ -52,6 +52,7 @@ public class SlimeAIIdle : AI
             i++;
             yield return null;
         }
+        Debug.Log("walk over, changing to idle");
         getAnimatorController().changeAnimation("Slime_idle");
     }
 
@@ -65,7 +66,8 @@ public class SlimeAIIdle : AI
     public override void startUp()
     {
         base.startUp();
+        Debug.Log("Startup: about to change to idle");
         getAnimatorController().changeAnimation("Slime_idle");
-        timer = 0f;
+        timer = 2f;
     }
 }
