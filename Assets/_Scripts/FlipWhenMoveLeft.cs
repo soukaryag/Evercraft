@@ -15,15 +15,25 @@ public class FlipWhenMoveLeft : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(getAnimator().GetFloat("SpeedX") + " " + getAnimator().GetFloat("SpeedY"));
-        if (getAnimator().GetFloat("SpeedX") < 0) {
-            Debug.Log("SpeedX < 0, flip");
-            tfm.localScale = new Vector2(-1f, 1f);
+        //Debug.Log(getAnimator().GetFloat("SpeedX") + " " + getAnimator().GetFloat("SpeedY"));
+        if (getAnimator().GetBool("Moving")) {
+            if (getAnimator().GetFloat("SpeedX") < 0) {
+                //Debug.Log("SpeedX < 0, flip");
+                tfm.localScale = new Vector2(-1f, 1f);
+            }
+            else {
+                tfm.localScale = new Vector2(1f, 1f);
+            }
         }
-        else {
-            Debug.Log("SpeedX >= 0, regular");
-            tfm.localScale = new Vector2(1f, 1f);
-        }
+        // else if (getAnimator().GetBool("Attacking")) {
+        //     if (getAnimator().GetInteger("AttackDirection") == 3) {
+        //         tfm.localScale = new Vector2(-1f, 1f);
+        //     }
+        //     else {
+        //         tfm.localScale = new Vector2(1f, 1f);
+        //     }
+        // }
+        
     }
 
     public void setAnimator(Animator animator) {
