@@ -9,6 +9,8 @@ public class SlimeAIIdle : AI
     private float actionTime = 4.0f;
     private int actionFrames = 270; //how many frames the action should run for
     private IEnumerator walk;
+
+    private bool justEntered;
     public override void Start()
     {
         timer = 0f;
@@ -24,6 +26,10 @@ public class SlimeAIIdle : AI
         if (manager.isLocked()) {
             return;
         }
+        if (justEntered) {
+            getAnimatorController().changeAnimation("Slime_idle");
+        }
+        
         timer += Time.deltaTime;
         if (timer >= actionTime) {
             float directionX = (float)(Random.value - 0.5);
@@ -35,7 +41,7 @@ public class SlimeAIIdle : AI
                 case 1: getAnimatorController().changeAnimation("Slime_move_up"); break;
                 case 2: getAnimatorController().changeAnimation("Slime_move_left"); break;
                 case 3: getAnimatorController().changeAnimation("Slime_move_down"); break;
-                default: Debug.Log("Default: changing to tidle"); getAnimatorController().changeAnimation("Slime_idle"); break;
+                //default: Debug.Log("Default: changing to tidle"); getAnimatorController().changeAnimation("Slime_idle"); break;
             }
             float distance = 2.0f;
             timer = 0f;
@@ -48,11 +54,14 @@ public class SlimeAIIdle : AI
         int i = 0;
         while (i < actionFrames) {
             Vector3 increment = new Vector3((direction.x * distance / actionFrames), (direction.y * distance / actionFrames), 0);
-            addVectorToPosition(increment);
+            //addVectorToPosition(increment);
+            //Debug.Log(rb.position);
+            rb.MovePosition(rb.position + (Vector2)increment);
+            
             i++;
             yield return null;
         }
-        Debug.Log("walk over, changing to idle");
+        //ßDebug.Log("walk over, changing to idle");
         getAnimatorController().changeAnimation("Slime_idle");
     }
 
@@ -61,13 +70,20 @@ public class SlimeAIIdle : AI
         if (walk != null) {
             StopCoroutine(walk);
         }
+        justEntered = false;
     }
 
     public override void startUp()
     {
         base.startUp();
-        Debug.Log("Startup: about to change to idle");
-        getAnimatorController().changeAnimation("Slime_idle");
         timer = 2f;
+        justEntered = true;
+    }
+
+    public override void playDefaultAnimation()
+    {
+        base.playDefaultAnimation();
+        getAnimatorController().changeAnimation("Slime_idle");
+
     }
 }

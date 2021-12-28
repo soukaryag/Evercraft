@@ -14,6 +14,8 @@ public class WeaponAimer : MonoBehaviour
     [SerializeField]
     private Camera playerCamera;
 
+    private Manager manager;
+
     private float weaponCooldown = 0.25f;
     private float weaponTimer = 10f;
 
@@ -23,19 +25,24 @@ public class WeaponAimer : MonoBehaviour
         var main = weapon1.main;
         main.startLifetime = float.PositiveInfinity;
         weapon2.Stop();
+        manager = transform.parent.GetComponent<Manager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButton(0)) {
-            mousePos = playerCamera.ScreenToWorldPoint(Input.mousePosition);
-            lookAt(mousePos);
-            if (weaponTimer >= weaponCooldown) {
-                weaponTimer = 0;
-                weapon2.Emit(1);
+        
+        if (!manager.isLocked()) {
+            if (Input.GetMouseButton(0)) {
+                mousePos = playerCamera.ScreenToWorldPoint(Input.mousePosition);
+                lookAt(mousePos);
+                if (weaponTimer >= weaponCooldown) {
+                    weaponTimer = 0;
+                    weapon2.Emit(1);
+                }
             }
         }
+        
         weaponTimer += Time.deltaTime;
     }
 
