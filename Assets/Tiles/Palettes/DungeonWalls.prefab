@@ -45,7 +45,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 11
-      m_TileSpriteIndex: 11
+      m_TileSpriteIndex: 12
       m_TileMatrixIndex: 0
       m_TileColorIndex: 23
       m_TileObjectToInstantiateIndex: 65535
@@ -55,7 +55,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 10
-      m_TileSpriteIndex: 10
+      m_TileSpriteIndex: 11
       m_TileMatrixIndex: 0
       m_TileColorIndex: 23
       m_TileObjectToInstantiateIndex: 65535
@@ -242,12 +242,12 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 1
     m_Data: {fileID: 2203797919881089718, guid: a0d3fbbc155eb404a87f827b40a48dfe, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: -224872910991652484, guid: a0d3fbbc155eb404a87f827b40a48dfe, type: 3}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
   - m_RefCount: 1
     m_Data: {fileID: 6482964590553171806, guid: a0d3fbbc155eb404a87f827b40a48dfe, type: 3}
   - m_RefCount: 1
@@ -467,3 +467,5 @@ MonoBehaviour:
   m_Name: Palette Settings
   m_EditorClassIdentifier: 
   cellSizing: 0
+  m_TransparencySortMode: 0
+  m_TransparencySortAxis: {x: 0, y: 0, z: 1}

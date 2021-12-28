@@ -22,26 +22,28 @@ public class DamageEnemyOnCollision : MonoBehaviour
         //Debug.Log("?");
     }
 
-    // void OnParticleCollision(GameObject other) {
-    //     //Physics.IgnoreCollision(part, other);
-    //     //Debug.Log("collision");
-    //     //Debug.Log(other);
-    //     int numCollisionEvents = part.GetCollisionEvents(other, collisionEvents);
-    //     int i = 0;
-    //     if (other.tag == "Enemy") {
-    //         while (i < numCollisionEvents) {
-                
-    //             Debug.Log("collision event" + collisionEvents[i]);
-    //             HealthBar health = other.GetComponentInChildren<HealthBar>();
-    //             if (health != null) {
-    //                 //Debug.Log("health.null");
-    //                 health.damage(this.damage);
-    //             }
-    //             i++;
-    //         }
-    //     }
+    void OnParticleCollision(GameObject other) {
+        //Physics.IgnoreCollision(part, other);
+        //Debug.Log("collision");
+        //Debug.Log(other);
+        int numCollisionEvents = part.GetCollisionEvents(other, collisionEvents);
+        int i = 0;
+        if (other.tag == "Enemy") {
+            while (i < numCollisionEvents) {
+                //Activate the enemy's get hit animation
+                ExternalEventAnimations eea = other.GetComponentInChildren<ExternalEventAnimations>();
+                eea.playHitAnimation(collisionEvents[i].velocity);
+
+                HealthBar health = other.GetComponentInChildren<HealthBar>();
+                if (health != null) {
+                    //Debug.Log("health.null");
+                    health.damage(this.damage);
+                }
+                i++;
+            }
+        }
         
-    // }
+    }
 
     // void OnParticleTrigger() {
     //     int i = 0;

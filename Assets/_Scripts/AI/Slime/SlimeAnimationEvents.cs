@@ -49,12 +49,16 @@ public class SlimeAnimationEvents : MonoBehaviour
         enragedAI.lockOnAndAttack();
     }
 
-    public void toggleLock() {
-        manager.toggleLock();
+    public void removeLock() {
+        manager.removeLock();
     }
 
     public void doNothing() {
         //Do nothing. Filler for adding animation events to the end of animations
         //and squelching the error message
+    }
+
+    public void playDefaultAnimation() {
+        manager.playDefaultAnimation();
     }
 }

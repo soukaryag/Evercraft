@@ -14,22 +14,26 @@ public abstract class AISM : MonoBehaviour
 
     private AnimatorController animatorController;
     private Transform tfm;
-    private bool locked = false;
+
+    private Rigidbody2D rb;
+    public bool locked = false;
     // Start is called before the first frame update
     public virtual void Start()
     {
         AIs = new List<AI>();
         tfm = transform.parent;
+        rb = transform.parent.gameObject.GetComponent<Rigidbody2D>();
         animator = transform.parent.gameObject.GetComponentInChildren<Animator>();
         animatorController = transform.parent.gameObject.GetComponentInChildren<AnimatorController>();
         AI[] ais = GetComponentsInChildren<AI>();
-        FlipWhenMoveLeft flipper = GetComponent<FlipWhenMoveLeft>();
-        flipper.setAnimator(animator);
-        flipper.setTransform(tfm);
+        //FlipWhenMoveLeft flipper = GetComponent<FlipWhenMoveLeft>();
+        //flipper.setAnimator(animator);
+        //flipper.setTransform(tfm);
         foreach(AI el in GetComponentsInChildren<AI>()) {
             //Add it to our list, and give it access to the animater and transform
             el.setAnimator(animator);
             el.setTransform(tfm);
+            el.setRigidbody(rb);
             el.setAnimatorController(animatorController);
             el.setManager(this);
             AIs.Add(el);
@@ -61,15 +65,20 @@ public abstract class AISM : MonoBehaviour
         return locked;
     }
 
-    public void toggleLock() {
-        //Debug.Log("setting the lock to " + !locked);
-        locked = !locked;
-        if (!locked) {
-            currentAI.evaluate();
-        }
+    public void removeLock() {
+        locked = false;
+        currentAI.evaluate();
+    }
+
+    public void engageLock() {
+        locked = true;
     }
 
     public Image getEmojiBackground() {
         return emojiBackground;
+    }
+
+    public void playDefaultAnimation() {
+        currentAI.playDefaultAnimation();
     }
 }

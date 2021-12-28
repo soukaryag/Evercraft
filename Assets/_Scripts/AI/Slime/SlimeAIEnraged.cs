@@ -59,6 +59,7 @@ public class SlimeAIEnraged : AI
                     case 3: getAnimatorController().changeAnimation("Slime_move_down"); break;
                     default: getAnimatorController().changeAnimation("Slime_idle"); break;
                 }
+                rb.MovePosition(rb.position + (direction * Time.deltaTime));
                 addVectorToPosition(new Vector3(direction.x * Time.deltaTime, direction.y * Time.deltaTime, 0));
             }
             float distance = Vector2.Distance(getTransform().position, path.vectorPath[currentWaypoint]);
@@ -119,7 +120,7 @@ public class SlimeAIEnraged : AI
         else {
             getAnimatorController().changeAnimation("Slime_idle");
         }
-        manager.toggleLock();
+        manager.engageLock();
     }
 
     public void setWeapon1(ParticleSystem w1) {
@@ -143,5 +144,11 @@ public class SlimeAIEnraged : AI
     public override void shutDown() {
         base.shutDown();
         manager.getEmojiBackground().color = new Color32(200, 200, 200, 255);
+    }
+    public override void playDefaultAnimation()
+    {
+        base.playDefaultAnimation();
+        //Nothing needs to be done...
+
     }
 }

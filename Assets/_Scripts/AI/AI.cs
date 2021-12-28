@@ -15,6 +15,8 @@ public abstract class AI : MonoBehaviour
     private Image emoji;
 
     Transform tfm;
+
+    protected Rigidbody2D rb;
     // Start is called before the first frame update
     public virtual void Start()
     {
@@ -27,6 +29,10 @@ public abstract class AI : MonoBehaviour
 
     public Transform getTransform() {
         return tfm;
+    }
+
+    public void setRigidbody(Rigidbody2D rb) {
+        this.rb = rb;
     }
 
     public void setAnimator(Animator anim) {
@@ -91,6 +97,10 @@ public abstract class AI : MonoBehaviour
 
     public Image getEmoji() {
         return emoji;
+    }
+
+    public virtual void playDefaultAnimation() {
+
     }
 
     // Update is called once per frame

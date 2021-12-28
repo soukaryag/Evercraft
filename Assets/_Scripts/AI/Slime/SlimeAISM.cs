@@ -23,7 +23,6 @@ public class SlimeAISM : AISM
         enragedAI = GetComponentInChildren<SlimeAIEnraged>();
         enragedAI.setWeapon1(weapon1);
         enragedAI.setWeapon2(weapon2);
-        
     }
 
     /* Idle - > Enraged if collision with player detector */
@@ -33,7 +32,6 @@ public class SlimeAISM : AISM
         if (enragedAI == currentAI) {
             Vector2 distanceToTarget = enragedAI.getTarget().position - transform.position;
             if (distanceToTarget.magnitude > 6.0f) {
-                enragedAI.getAnimator().SetBool("Attacking", false);
                 transitionTo(idleAI);
             }
         }
@@ -43,22 +41,18 @@ public class SlimeAISM : AISM
     void OnTriggerEnter2D(Collider2D other) {
         if (enragedAI != currentAI) {
             if (other.tag == "Player") {
-                if (currentAI == idleAI) {
-                    currentAI.shutDown();
-                }
-                
-                //Debug.Log(other.tag + " is Player");
                 enragedAI.setTarget(other.transform);
                 weapon1.GetComponent<RotateToTarget>().setTarget(other.transform);
                 transitionTo(enragedAI);
             }
         }
-        
     }
 
     public ParticleSystem getWeapon1() {
         return weapon1;
     }
+
+    
 
 
 }
